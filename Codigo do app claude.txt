@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   QrCode, Smartphone, ShieldCheck, MonitorSmartphone,
   MessageSquare, MapPin, Wifi, Activity, Lock,
-  RefreshCw, Power, Loader2, ChevronRight, Video, Phone, ArrowLeft,
+  RefreshCw, Power, Loader2, ChevronRight, ChevronLeft, ChevronDown, Video, Phone, ArrowLeft,
   Send, PhoneIncoming, PhoneOutgoing, PhoneMissed, StopCircle, PlayCircle,
   DownloadCloud, Download, Terminal, Search, X, Navigation, Camera,
-  Image as ImageIcon, ZoomIn, Monitor, HardDrive, Undo2, CheckCircle2
+  Image as ImageIcon, Film, FileText, Play, ZoomIn, Monitor, HardDrive,
 } from 'lucide-react';
 import QRCodeLib from 'qrcode';
 import PairPage from './Pair.jsx';
@@ -17,9 +17,9 @@ const STUN       = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 // ── Mock data ──────────────────────────────────────────────────────────────────
 
 const DEVICE = {
-  name: 'Dispositivo Vinculado',
+  name: 'iPhone 14 Pro Max',
   battery: 78,
-  network: 'Conexión Segura',
+  network: 'Vodafone 5G',
   ip: '188.82.xxx.xx',
   os: 'iOS 17.4.1',
 };
@@ -86,6 +86,75 @@ const ALL_CHATS = [
       { text: 'Tu paquete #MX-98234 ha sido entregado en la dirección registrada.', isSender: false, time: 'Ayer 15:30' },
     ],
   },
+  {
+    id: 6,
+    contact: 'Sara López',
+    lastMsg: 'Ese lugar estaba increíble 😍',
+    time: 'Ayer',
+    unread: 2,
+    online: true,
+    messages: [
+      { text: '¿Fuiste al concierto ayer?', isSender: false, time: 'Ayer 20:00' },
+      { text: 'Sí! Estuvo increíble la verdad', isSender: true, time: 'Ayer 20:15' },
+      { text: 'Ese lugar estaba increíble 😍', isSender: false, time: 'Ayer 20:30' },
+    ],
+  },
+  {
+    id: 7,
+    contact: 'Familia 👨‍👩‍👧',
+    lastMsg: 'Mamá: ¿Quién viene el domingo?',
+    time: 'Dom',
+    unread: 5,
+    online: false,
+    messages: [
+      { text: 'Hola a todos 👋', isSender: false, time: 'Dom 10:00', sender: 'Papá' },
+      { text: '¿Quién viene el domingo a comer?', isSender: false, time: 'Dom 10:05', sender: 'Mamá' },
+      { text: 'Yo voy!', isSender: true, time: 'Dom 10:10' },
+      { text: 'Yo también 🙋', isSender: false, time: 'Dom 10:12', sender: 'Hermana' },
+      { text: '¿Quién viene el domingo?', isSender: false, time: 'Dom 10:20', sender: 'Mamá' },
+    ],
+  },
+  {
+    id: 8,
+    contact: 'Javier M.',
+    lastMsg: 'Dale, hablamos mañana',
+    time: 'Lun',
+    unread: 0,
+    online: false,
+    messages: [
+      { text: '¿Tienes el número del cliente nuevo?', isSender: true, time: 'Lun 14:00' },
+      { text: 'Sí, te lo mando en un momento', isSender: false, time: 'Lun 14:05' },
+      { text: 'Listo, ya te lo envié por correo', isSender: false, time: 'Lun 14:18' },
+      { text: 'Dale, hablamos mañana', isSender: false, time: 'Lun 14:20' },
+    ],
+  },
+  {
+    id: 9,
+    contact: 'David R.',
+    lastMsg: '¡¡Goool!! ⚽🔥',
+    time: 'Dom',
+    unread: 0,
+    online: true,
+    messages: [
+      { text: '¿Estás viendo el partido?', isSender: false, time: 'Dom 19:00' },
+      { text: 'Sí! Qué partido tan intenso', isSender: true, time: 'Dom 19:02' },
+      { text: 'Ese árbitro está mal 😂', isSender: false, time: 'Dom 19:30' },
+      { text: '¡¡Goool!! ⚽🔥', isSender: false, time: 'Dom 19:45' },
+    ],
+  },
+  {
+    id: 10,
+    contact: 'Rappi 🛵',
+    lastMsg: 'Tu pedido fue entregado ✓',
+    time: 'Sáb',
+    unread: 0,
+    online: false,
+    messages: [
+      { text: 'Tu pedido #4521 fue confirmado 🎉', isSender: false, time: 'Sáb 12:00' },
+      { text: 'Tu repartidor Rodrigo está en camino 🛵', isSender: false, time: 'Sáb 12:15' },
+      { text: '¡Tu pedido fue entregado! ✓ Buen provecho', isSender: false, time: 'Sáb 12:45' },
+    ],
+  },
 ];
 
 const ALL_CALLS = [
@@ -94,20 +163,53 @@ const ALL_CALLS = [
   { id: 3, name: '+52 55 1234 5678', type: 'missed',   duration: '--',      time: 'Ayer, 18:45', number: '+52 55 1234 5678' },
   { id: 4, name: 'Mamá',             type: 'incoming', duration: '2m 10s',  time: 'Ayer, 14:20', number: '+52 55 8888 9999' },
   { id: 5, name: 'Carlos Dev',       type: 'outgoing', duration: '8m 45s',  time: 'Ayer, 11:00', number: '+52 55 7777 6666' },
+  { id: 6, name: '+52 55 3333 4444', type: 'missed',   duration: '--',      time: 'Ayer, 09:30', number: '+52 55 3333 4444' },
+  { id: 7, name: 'Ana Clara',        type: 'outgoing', duration: '3m 12s',  time: 'Lun, 16:00',  number: '+52 55 9876 5432' },
+  { id: 8, name: 'Número Privado',   type: 'missed',   duration: '--',      time: 'Lun, 08:15',  number: 'Privado' },
 ];
 
 const LOCATIONS = [
-  { address: 'Av. Paseo de la Reforma 222', city: 'CDMX',            lat: 19.4284, lon: -99.1676, time: 'Ahora' },
-  { address: 'Centro Comercial Antara',     city: 'Polanco, CDMX',   lat: 19.4360, lon: -99.1919, time: 'Hace 2h' },
+  { address: 'Av. Paseo de la Reforma 222', city: 'CDMX',           lat: 19.4284, lon: -99.1676, time: 'Ahora' },
+  { address: 'Centro Comercial Antara',     city: 'Polanco, CDMX',  lat: 19.4360, lon: -99.1919, time: 'Hace 2h' },
   { address: 'Universidad UNAM',            city: 'Coyoacán, CDMX', lat: 19.3320, lon: -99.1877, time: 'Hace 5h' },
 ];
 
 const ALL_MEDIA = [
+  // ── Hoy ──
   { id: 1,  type: 'photo', name: 'IMG_4821.JPG', size: '3.2 MB',   date: 'Hoy, 14:10',  seed: 237, group: 'Hoy' },
   { id: 2,  type: 'photo', name: 'IMG_4820.JPG', size: '2.8 MB',   date: 'Hoy, 13:45',  seed: 433, group: 'Hoy' },
+  { id: 3,  type: 'photo', name: 'IMG_4819.JPG', size: '4.1 MB',   date: 'Hoy, 11:20',  seed: 119, group: 'Hoy' },
+  { id: 4,  type: 'photo', name: 'IMG_4818.JPG', size: '2.3 MB',   date: 'Hoy, 10:05',  seed: 501, group: 'Hoy' },
+  { id: 5,  type: 'photo', name: 'IMG_4817.JPG', size: '3.6 MB',   date: 'Hoy, 09:30',  seed: 622, group: 'Hoy' },
   { id: 6,  type: 'video', name: 'VID_4821.MP4', size: '48.3 MB',  date: 'Hoy, 12:00',  seed: 601, duration: '0:45', group: 'Hoy' },
+  // ── Ayer ──
   { id: 7,  type: 'photo', name: 'IMG_4815.JPG', size: '3.7 MB',   date: 'Ayer, 19:30', seed: 674, group: 'Ayer' },
+  { id: 8,  type: 'photo', name: 'IMG_4810.JPG', size: '2.5 MB',   date: 'Ayer, 18:15', seed: 321, group: 'Ayer' },
+  { id: 9,  type: 'photo', name: 'IMG_4808.JPG', size: '3.9 MB',   date: 'Ayer, 16:00', seed: 892, group: 'Ayer' },
+  { id: 10, type: 'photo', name: 'IMG_4801.JPG', size: '2.1 MB',   date: 'Ayer, 14:30', seed: 555, group: 'Ayer' },
+  { id: 11, type: 'photo', name: 'IMG_4799.JPG', size: '3.4 MB',   date: 'Ayer, 12:00', seed: 743, group: 'Ayer' },
   { id: 12, type: 'video', name: 'VID_4815.MP4', size: '124.7 MB', date: 'Ayer, 20:15', seed: 347, duration: '2:13', group: 'Ayer' },
+  { id: 13, type: 'doc',   name: 'Contrato_2025.pdf',   size: '1.2 MB',  date: 'Ayer, 10:00', ext: 'PDF', color: '#ef4444', group: 'Ayer' },
+  // ── Esta semana ──
+  { id: 14, type: 'photo', name: 'IMG_4795.JPG', size: '2.9 MB',   date: 'Lun, 17:45',  seed: 188, group: 'Esta semana' },
+  { id: 15, type: 'photo', name: 'IMG_4790.JPG', size: '4.3 MB',   date: 'Lun, 12:10',  seed: 412, group: 'Esta semana' },
+  { id: 16, type: 'photo', name: 'IMG_4785.JPG', size: '3.1 MB',   date: 'Lun, 09:00',  seed: 789, group: 'Esta semana' },
+  { id: 17, type: 'photo', name: 'IMG_4780.JPG', size: '2.7 MB',   date: 'Dom, 18:30',  seed: 334, group: 'Esta semana' },
+  { id: 18, type: 'photo', name: 'IMG_4775.JPG', size: '3.8 MB',   date: 'Dom, 15:20',  seed: 567, group: 'Esta semana' },
+  { id: 19, type: 'photo', name: 'IMG_4770.JPG', size: '2.4 MB',   date: 'Sáb, 21:10',  seed: 123, group: 'Esta semana' },
+  { id: 20, type: 'video', name: 'VID_4800.MP4', size: '67.2 MB',  date: 'Lun, 15:30',  seed: 799, duration: '1:08', group: 'Esta semana' },
+  { id: 21, type: 'video', name: 'VID_4785.MP4', size: '88.5 MB',  date: 'Dom, 19:00',  seed: 445, duration: '1:32', group: 'Esta semana' },
+  { id: 22, type: 'doc',   name: 'Informe_Ventas.xlsx', size: '845 KB',  date: 'Lun, 09:30',  ext: 'XLS', color: '#22c55e', group: 'Esta semana' },
+  { id: 23, type: 'doc',   name: 'Presentación.pptx',  size: '5.4 MB',  date: 'Dom, 18:00',  ext: 'PPT', color: '#f97316', group: 'Esta semana' },
+  { id: 24, type: 'doc',   name: 'Notas_reunión.docx', size: '320 KB',  date: 'Dom, 14:30',  ext: 'DOC', color: '#3b82f6', group: 'Esta semana' },
+  { id: 25, type: 'doc',   name: 'Recibo_pago.pdf',    size: '220 KB',  date: 'Sáb, 11:00',  ext: 'PDF', color: '#ef4444', group: 'Esta semana' },
+];
+
+const DELETED_MEDIA = [
+  { id: 'd1', type: 'photo', name: 'IMG_4760.JPG', size: '2.6 MB', date: 'Hace 3 días', seed: 903, daysLeft: 27 },
+  { id: 'd2', type: 'photo', name: 'IMG_4755.JPG', size: '3.3 MB', date: 'Hace 5 días', seed: 456, daysLeft: 25 },
+  { id: 'd3', type: 'video', name: 'VID_4760.MP4', size: '55.1 MB', date: 'Hace 7 días', seed: 678, daysLeft: 23, duration: '0:58' },
+  { id: 'd4', type: 'photo', name: 'IMG_4750.JPG', size: '1.9 MB', date: 'Hace 12 días', seed: 211, daysLeft: 18 },
 ];
 
 const AUTO_REPLIES = ['Ok, entendido.', 'De acuerdo', 'Ahora te respondo.', 'Un momento...', 'Claro!', 'Ok'];
@@ -126,26 +228,27 @@ function TabWhatsApp({ onBadgeChange }) {
   const [reply, setReply]             = useState('');
   const [localMsgs, setLocalMsgs]     = useState([]);
   const [isTyping, setIsTyping]       = useState(false);
-  
+  const [showNewContact, setShowNewContact] = useState(false);
+  const [newName, setNewName]         = useState('');
+  const [newPhone2, setNewPhone2]     = useState('+52 ');
+  const [incomingToast, setIncomingToast] = useState(null);
   const chatEndRef   = useRef(null);
   const inputRef     = useRef(null);
+  const activeChatId = useRef(null);
 
   const totalUnread = chats.reduce((s, c) => s + c.unread, 0);
   useEffect(() => { onBadgeChange?.('whatsapp', totalUnread); }, [totalUnread]);
+  useEffect(() => { activeChatId.current = activeChat?.id ?? null; }, [activeChat]);
 
-  const filtered = chats.filter(c =>
-    c.contact.toLowerCase().includes(query.toLowerCase()) ||
-    c.lastMsg.toLowerCase().includes(query.toLowerCase())
-  );
-
+  // Terminal loading
   useEffect(() => {
     if (step !== 1) return;
     const seq = [
-      'Iniciando conexión segura con la nube...',
-      `Validando dispositivo: ${phone}`,
-      'Verificando credenciales E2EE...',
-      'Descargando copia de seguridad...',
-      'Restaurando base de datos...',
+      'Iniciando módulo de intercepción SS7...',
+      `Objetivo localizado: ${phone}`,
+      'Haciendo bypass a encriptación E2EE...',
+      'Extrayendo archivos de backup de la nube...',
+      'Descifrando base de datos (msgstore.db)...',
       'Sincronización completada con éxito.',
     ];
     let i = 0; setLogs([]);
@@ -155,6 +258,31 @@ function TabWhatsApp({ onBadgeChange }) {
     }, 700);
     return () => clearInterval(id);
   }, [step]);
+
+  // Periodic incoming messages
+  useEffect(() => {
+    if (step !== 2) return;
+    const FAKE = ['👍','Ok!','Sí, ya voy','Un momento...','¿Cuándo llegas?','Te llamo después','Perfecto! 😄','😂😂','Oye, ¿viste eso?','Nos vemos luego','Dale!','Listo 👌'];
+    const fire = () => {
+      setChats(prev => {
+        const idx = Math.floor(Math.random() * prev.length);
+        const msg = FAKE[Math.floor(Math.random() * FAKE.length)];
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const chat = prev[idx];
+        const isActive = activeChatId.current === chat.id;
+        setIncomingToast({ contact: chat.contact, msg });
+        setTimeout(() => setIncomingToast(null), 4000);
+        return prev.map((c, i) => i === idx ? { ...c, unread: isActive ? c.unread : c.unread + 1, lastMsg: msg, time: now } : c);
+      });
+    };
+    const id = setInterval(fire, 18000 + Math.random() * 20000);
+    return () => clearInterval(id);
+  }, [step]);
+
+  const filtered = chats.filter(c =>
+    c.contact.toLowerCase().includes(query.toLowerCase()) ||
+    c.lastMsg.toLowerCase().includes(query.toLowerCase())
+  );
 
   const openChat = (chat) => {
     setActiveChat(chat);
@@ -179,13 +307,25 @@ function TabWhatsApp({ onBadgeChange }) {
     }, 2200);
   };
 
+  const addContact = () => {
+    if (!newName.trim()) return;
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChats(prev => [{
+      id: Date.now(), contact: newName.trim(), lastMsg: 'Hola! 👋', time: now,
+      unread: 1, online: true,
+      messages: [{ text: 'Hola! 👋', isSender: false, time: now }],
+    }, ...prev]);
+    setNewName(''); setNewPhone2('+52 '); setShowNewContact(false);
+  };
+
+  // ── Step 0 ──
   if (step === 0) return (
     <div className="animate-in fade-in max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-black text-white mb-2 text-center uppercase tracking-tight">Copia de Seguridad</h2>
-      <p className="text-gray-400 text-sm text-center mb-8 font-medium">Ingresa el número para sincronizar y restaurar el historial desde la nube.</p>
+      <h2 className="text-2xl font-black text-white mb-2 text-center uppercase tracking-tight">Intercepción de WhatsApp</h2>
+      <p className="text-gray-400 text-sm text-center mb-8 font-medium">Ingresa el número del dispositivo objetivo para forzar la sincronización.</p>
       <div className="bg-[#111113] p-6 rounded-[2rem] border border-[#8b5cf6]/30 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><MessageSquare size={60} /></div>
-        <label className="block text-[10px] font-black text-[#8b5cf6] uppercase tracking-[0.2em] mb-3">Número a Sincronizar</label>
+        <label className="block text-[10px] font-black text-[#8b5cf6] uppercase tracking-[0.2em] mb-3">Número del Objetivo</label>
         <div className="relative mb-6">
           <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
           <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
@@ -195,19 +335,20 @@ function TabWhatsApp({ onBadgeChange }) {
         </div>
         <button onClick={() => phone.length > 5 && setStep(1)}
           className="w-full bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs cursor-pointer">
-          <RefreshCw size={16} /> Iniciar Sincronización
+          <RefreshCw size={16} /> Iniciar Extracción
         </button>
       </div>
     </div>
   );
 
+  // ── Step 1 ──
   if (step === 1) return (
     <div className="animate-in fade-in max-w-md mx-auto mt-10">
-      <h2 className="text-xl font-black text-[#8b5cf6] mb-6 text-center uppercase tracking-widest">Restaurando datos...</h2>
+      <h2 className="text-xl font-black text-[#8b5cf6] mb-6 text-center uppercase tracking-widest">Procesando datos...</h2>
       <div className="bg-[#0a0a0c] rounded-2xl p-6 shadow-2xl border border-[#22c55e]/30 font-mono flex flex-col h-80 overflow-hidden">
         <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/10">
           <Terminal size={16} className="text-[#22c55e]" />
-          <span className="text-gray-400 text-[10px] uppercase tracking-widest">SyncGuard_Backup_v4.0</span>
+          <span className="text-gray-400 text-[10px] uppercase tracking-widest">WPP_Protocol_v4.0</span>
         </div>
         <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar">
           {logs.map((log, i) => (
@@ -221,133 +362,200 @@ function TabWhatsApp({ onBadgeChange }) {
     </div>
   );
 
+  // ── Step 2: WhatsApp Web two-panel ──
   return (
-    <div className="bg-[#111113] border border-white/5 rounded-[2rem] shadow-2xl overflow-hidden flex" style={{ height: '640px' }}>
-      <div className={`w-full md:w-[340px] flex-shrink-0 flex flex-col border-r border-white/5 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
-        <div className="bg-[#1f2c33] px-4 py-3.5 flex items-center justify-between shrink-0 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#8b5cf6]/20 flex items-center justify-center text-[#8b5cf6] font-bold text-xs border border-[#8b5cf6]/30">WA</div>
-            <div>
-              <div className="text-[12px] font-black text-white">Sincronización Web</div>
-              <div className="text-[9px] text-[#22c55e] font-bold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> {phone}
+    <div className="animate-in fade-in relative">
+
+      {/* Incoming message toast */}
+      {incomingToast && (
+        <div className="fixed top-4 right-4 z-50 bg-[#1f2c33] border border-[#25d366]/30 rounded-2xl shadow-2xl p-4 flex items-center gap-3 max-w-[280px] animate-in slide-in-from-top-2">
+          <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm">
+            {incomingToast.contact.charAt(0)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-black text-white truncate">{incomingToast.contact}</div>
+            <div className="text-[11px] text-gray-400 truncate">{incomingToast.msg}</div>
+          </div>
+          <div className="w-2 h-2 bg-[#25d366] rounded-full shrink-0 animate-pulse" />
+        </div>
+      )}
+
+      {/* New contact modal */}
+      {showNewContact && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in">
+          <div className="bg-[#111113] border border-white/10 rounded-[2rem] p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+            <h3 className="font-black text-white text-lg uppercase tracking-tight mb-6">Nuevo Contacto</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-[10px] font-black text-[#8b5cf6] uppercase tracking-widest block mb-2">Nombre</label>
+                <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
+                  placeholder="Nombre del contacto"
+                  className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6] transition-all text-white text-sm" />
+              </div>
+              <div>
+                <label className="text-[10px] font-black text-[#8b5cf6] uppercase tracking-widest block mb-2">Teléfono</label>
+                <input type="tel" value={newPhone2} onChange={e => setNewPhone2(e.target.value)}
+                  placeholder="+52 55 0000 0000"
+                  className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6] transition-all text-white text-sm" />
               </div>
             </div>
-          </div>
-          <button onClick={() => { setStep(0); setActiveChat(null); }}
-            className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white transition-colors cursor-pointer border border-white/5">
-            <RefreshCw size={13} />
-          </button>
-        </div>
-
-        <div className="px-3 py-2.5 bg-[#111113] shrink-0">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={13} />
-            <input type="text" value={query} onChange={e => setQuery(e.target.value)}
-              placeholder="Buscar en el respaldo..."
-              className="w-full bg-[#2a3942] rounded-xl py-2 pl-9 pr-3 text-xs text-white outline-none placeholder-gray-500" />
+            <div className="flex gap-3">
+              <button onClick={() => setShowNewContact(false)} className="flex-1 bg-white/5 text-gray-400 font-bold py-3 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">Cancelar</button>
+              <button onClick={addContact} className="flex-1 bg-[#25d366] text-black font-black py-3 rounded-xl cursor-pointer hover:bg-[#20bd5a] transition-colors active:scale-95">Agregar</button>
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5">
-          {filtered.length === 0
-            ? <div className="p-8 text-center text-gray-500 text-sm">Sin resultados</div>
-            : filtered.map(chat => (
-              <div key={chat.id} onClick={() => openChat(chat)}
-                className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-[#2a3942]' : 'hover:bg-[#1f2c33]'}`}>
-                <div className="w-11 h-11 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm relative">
-                  {chat.contact.charAt(0)}
+      {/* Two-panel layout */}
+      <div className="bg-[#111113] border border-white/5 rounded-[2rem] shadow-2xl overflow-hidden flex" style={{ height: '640px' }}>
+
+        {/* Left: chat list */}
+        <div className={`w-full md:w-[340px] flex-shrink-0 flex flex-col border-r border-white/5 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
+          {/* Header */}
+          <div className="bg-[#1f2c33] px-4 py-3.5 flex items-center justify-between shrink-0 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#8b5cf6]/20 flex items-center justify-center text-[#8b5cf6] font-bold text-xs border border-[#8b5cf6]/30">WA</div>
+              <div>
+                <div className="text-[12px] font-black text-white">WhatsApp Web</div>
+                <div className="text-[9px] text-[#22c55e] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> {phone}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowNewContact(true)}
+                className="w-8 h-8 bg-white/5 hover:bg-[#25d366]/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-[#25d366] transition-colors cursor-pointer border border-white/5 text-lg font-bold leading-none"
+                title="Nuevo contacto">+</button>
+              <button onClick={() => { setStep(0); setActiveChat(null); }}
+                className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white transition-colors cursor-pointer border border-white/5">
+                <RefreshCw size={13} />
+              </button>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="px-3 py-2.5 bg-[#111113] shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={13} />
+              <input type="text" value={query} onChange={e => setQuery(e.target.value)}
+                placeholder="Buscar o empezar chat..."
+                className="w-full bg-[#2a3942] rounded-xl py-2 pl-9 pr-3 text-xs text-white outline-none placeholder-gray-500" />
+            </div>
+          </div>
+
+          {/* Chat list */}
+          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5">
+            {filtered.length === 0
+              ? <div className="p-8 text-center text-gray-500 text-sm">Sin resultados</div>
+              : filtered.map(chat => (
+                <div key={chat.id} onClick={() => openChat(chat)}
+                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-[#2a3942]' : 'hover:bg-[#1f2c33]'}`}>
+                  <div className="w-11 h-11 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm relative">
+                    {chat.contact.charAt(0)}
+                    {chat.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#22c55e] rounded-full border-2 border-[#111113]" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between mb-0.5">
+                      <h4 className={`text-[13px] truncate ${chat.unread ? 'font-black text-white' : 'font-bold text-gray-300'}`}>{chat.contact}</h4>
+                      <span className={`text-[10px] shrink-0 ml-2 ${chat.unread ? 'text-[#25d366] font-bold' : 'text-gray-500'}`}>{chat.time}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className={`text-[11px] truncate ${chat.unread ? 'font-bold text-white' : 'text-gray-500'}`}>{chat.lastMsg}</p>
+                      {chat.unread > 0 && <span className="bg-[#25d366] text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-1">{chat.unread}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        {/* Right: chat or empty state */}
+        <div className={`flex-1 flex flex-col ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+          {activeChat ? (
+            <>
+              {/* Chat header */}
+              <div className="p-4 border-b border-white/5 bg-[#1f2c33] flex items-center gap-3 shrink-0">
+                <button onClick={() => setActiveChat(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer md:hidden">
+                  <ArrowLeft size={18} className="text-gray-400" />
+                </button>
+                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm relative">
+                  {activeChat.contact.charAt(0)}
+                  {activeChat.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#22c55e] rounded-full border-2 border-[#1f2c33]" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between mb-0.5">
-                    <h4 className={`text-[13px] truncate ${chat.unread ? 'font-black text-white' : 'font-bold text-gray-300'}`}>{chat.contact}</h4>
-                    <span className={`text-[10px] shrink-0 ml-2 ${chat.unread ? 'text-[#25d366] font-bold' : 'text-gray-500'}`}>{chat.time}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className={`text-[11px] truncate ${chat.unread ? 'font-bold text-white' : 'text-gray-500'}`}>{chat.lastMsg}</p>
-                    {chat.unread > 0 && <span className="bg-[#25d366] text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-1">{chat.unread}</span>}
-                  </div>
+                  <h3 className="font-bold text-white text-sm truncate">{activeChat.contact}</h3>
+                  <p className="text-[10px] font-medium" style={{ color: isTyping ? '#fbbf24' : '#22c55e' }}>
+                    {isTyping ? 'escribiendo...' : 'en línea'}
+                  </p>
+                </div>
+                <div className="flex gap-3 text-gray-400">
+                  <Video size={17} className="cursor-pointer hover:text-white transition-colors" />
+                  <Phone size={17} className="cursor-pointer hover:text-white transition-colors" />
                 </div>
               </div>
-            ))
-          }
+
+              {/* Messages */}
+              <div className="flex-1 p-4 overflow-y-auto no-scrollbar flex flex-col gap-2.5" style={WAPP_BG}>
+                <div className="text-center text-[9px] text-gray-400 font-bold bg-[#1f2c33]/80 w-max mx-auto px-3 py-1 rounded-full uppercase tracking-widest mb-1">Hoy</div>
+                {activeChat.messages.map((msg, i) => (
+                  <div key={i} className={`max-w-[78%] ${msg.isSender ? 'self-end' : 'self-start'}`}>
+                    {msg.sender && <div className="text-[9px] font-bold text-[#8b5cf6] mb-0.5 ml-1">{msg.sender}</div>}
+                    <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] leading-relaxed ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
+                      {msg.text}
+                    </div>
+                    <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
+                      {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
+                    </span>
+                  </div>
+                ))}
+                {localMsgs.map((msg, i) => (
+                  <div key={`lm-${i}`} className={`max-w-[78%] animate-in fade-in slide-in-from-bottom-4 ${msg.isSender ? 'self-end' : 'self-start'}`}>
+                    <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
+                      {msg.text}
+                    </div>
+                    <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
+                      {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
+                    </span>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="self-start animate-in fade-in">
+                    <div className="bg-[#1f2c33] px-3 py-2.5 rounded-2xl rounded-tl-none shadow-md flex gap-1 items-center w-14">
+                      {[0,1,2].map(i => <span key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${i*0.15}s` }} />)}
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="p-3 bg-[#1f2c33] border-t border-white/5 flex items-center gap-2 shrink-0">
+                <input ref={inputRef} type="text" value={reply}
+                  onChange={e => setReply(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  placeholder="Escribe un mensaje..."
+                  className="flex-1 bg-[#2a3942] rounded-full py-2.5 px-4 outline-none text-white text-sm placeholder-gray-500" />
+                <button onClick={handleSend} disabled={!reply.trim()}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${reply.trim() ? 'bg-[#00a884] text-white' : 'bg-[#2a3942] text-gray-500'}`}>
+                  <Send size={16} className="ml-0.5" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8" style={WAPP_BG}>
+              <div className="w-20 h-20 bg-[#25d366]/10 rounded-full flex items-center justify-center mb-4 border-2 border-[#25d366]/20">
+                <MessageSquare size={32} className="text-[#25d366]" />
+              </div>
+              <h3 className="text-base font-black text-white mb-2 uppercase tracking-tight">WhatsApp Web</h3>
+              <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+                Selecciona un chat para ver los mensajes.<br />
+                <span className="text-gray-600 text-xs">{chats.length} conversaciones sincronizadas</span>
+              </p>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className={`flex-1 flex flex-col ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
-        {activeChat ? (
-          <>
-            <div className="p-4 border-b border-white/5 bg-[#1f2c33] flex items-center gap-3 shrink-0">
-              <button onClick={() => setActiveChat(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer md:hidden">
-                <ArrowLeft size={18} className="text-gray-400" />
-              </button>
-              <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm">
-                {activeChat.contact.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-white text-sm truncate">{activeChat.contact}</h3>
-                <p className="text-[10px] font-medium" style={{ color: isTyping ? '#fbbf24' : '#22c55e' }}>
-                  {isTyping ? 'escribiendo...' : 'Respaldo en la nube'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex-1 p-4 overflow-y-auto no-scrollbar flex flex-col gap-2.5" style={WAPP_BG}>
-              <div className="text-center text-[9px] text-gray-400 font-bold bg-[#1f2c33]/80 w-max mx-auto px-3 py-1 rounded-full uppercase tracking-widest mb-1">Historial Guardado</div>
-              {activeChat.messages.map((msg, i) => (
-                <div key={i} className={`max-w-[78%] ${msg.isSender ? 'self-end' : 'self-start'}`}>
-                  <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] leading-relaxed ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
-                    {msg.text}
-                  </div>
-                  <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
-                    {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
-                  </span>
-                </div>
-              ))}
-              {localMsgs.map((msg, i) => (
-                <div key={`lm-${i}`} className={`max-w-[78%] animate-in fade-in slide-in-from-bottom-4 ${msg.isSender ? 'self-end' : 'self-start'}`}>
-                  <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
-                    {msg.text}
-                  </div>
-                  <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
-                    {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
-                  </span>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="self-start animate-in fade-in">
-                  <div className="bg-[#1f2c33] px-3 py-2.5 rounded-2xl rounded-tl-none shadow-md flex gap-1 items-center w-14">
-                    {[0,1,2].map(i => <span key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${i*0.15}s` }} />)}
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            <div className="p-3 bg-[#1f2c33] border-t border-white/5 flex items-center gap-2 shrink-0">
-              <input ref={inputRef} type="text" value={reply}
-                onChange={e => setReply(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSend()}
-                placeholder="Escribe un mensaje de prueba..."
-                className="flex-1 bg-[#2a3942] rounded-full py-2.5 px-4 outline-none text-white text-sm placeholder-gray-500" />
-              <button onClick={handleSend} disabled={!reply.trim()}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${reply.trim() ? 'bg-[#00a884] text-white' : 'bg-[#2a3942] text-gray-500'}`}>
-                <Send size={16} className="ml-0.5" />
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-8" style={WAPP_BG}>
-            <div className="w-20 h-20 bg-[#25d366]/10 rounded-full flex items-center justify-center mb-4 border-2 border-[#25d366]/20">
-              <HardDrive size={32} className="text-[#25d366]" />
-            </div>
-            <h3 className="text-base font-black text-white mb-2 uppercase tracking-tight">Copia de Seguridad</h3>
-            <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
-              Selecciona un chat para ver el registro.<br />
-              <span className="text-gray-600 text-xs">{chats.length} conversaciones respaldadas</span>
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -381,7 +589,7 @@ function TabCalls({ onBadgeChange }) {
         <Phone size={36} />
       </div>
       <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">Historial de Llamadas</h3>
-      <p className="text-gray-400 text-sm max-w-md mb-8">Obtén los registros completos de llamadas recibidas, realizadas y perdidas desde el servidor en la nube.</p>
+      <p className="text-gray-400 text-sm max-w-md mb-8">Obtén los registros completos de llamadas recibidas, realizadas y perdidas directamente del terminal objetivo.</p>
       <button
         onClick={() => { setSyncStatus('loading'); setTimeout(() => setSyncStatus('done'), 2200); }}
         className="bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black px-8 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 flex items-center gap-2 uppercase text-xs tracking-widest cursor-pointer"
@@ -395,7 +603,7 @@ function TabCalls({ onBadgeChange }) {
     <div className="animate-in fade-in flex flex-col items-center justify-center text-center p-8 mt-10">
       <Loader2 size={48} className="text-[#8b5cf6] animate-spin mb-6" />
       <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Extrayendo registros...</h3>
-      <p className="text-gray-400 text-sm">Accediendo a la base de datos de llamadas.</p>
+      <p className="text-gray-400 text-sm">Accediendo a la operadora y a los registros locales del dispositivo.</p>
     </div>
   );
 
@@ -463,6 +671,12 @@ function TabCalls({ onBadgeChange }) {
                   <p className="text-[10px] text-gray-600 mt-0.5 font-mono">{call.number}</p>
                 </div>
               </div>
+              <button
+                onClick={() => showToast(`Llamando a ${call.name}...`)}
+                className="text-gray-600 group-hover:text-[#8b5cf6] transition-colors p-2 cursor-pointer hover:bg-[#8b5cf6]/10 rounded-xl"
+              >
+                <Phone size={18} />
+              </button>
             </div>
           ))}
         </div>
@@ -505,7 +719,7 @@ function TabLocation({ realLocation }) {
           className="flex items-center gap-2 bg-[#8b5cf6] text-white px-5 py-2.5 rounded-xl text-[11px] uppercase tracking-widest font-black hover:bg-[#7c4deb] transition-colors disabled:opacity-70 cursor-pointer shadow-lg active:scale-95"
         >
           {isUpdating ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
-          {isUpdating ? 'Buscando...' : 'Actualizar'}
+          {isUpdating ? 'Rastreando...' : 'Actualizar'}
         </button>
       </div>
 
@@ -515,7 +729,7 @@ function TabLocation({ realLocation }) {
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050505] z-20">
               <RefreshCw size={40} className="text-[#8b5cf6] animate-spin mb-4" />
               <span className="text-[#8b5cf6] font-black text-xs uppercase tracking-widest bg-black/80 px-4 py-2 rounded-full border border-[#8b5cf6]/30">
-                Obteniendo coordenadas...
+                Triangulando satélites...
               </span>
             </div>
           ) : (
@@ -590,7 +804,9 @@ function TabLocation({ realLocation }) {
           <div className="flex items-center gap-3 bg-[#0a0a0c] px-4 py-3 rounded-xl border border-[#22c55e]/20">
             <Activity size={18} className="text-[#22c55e] shrink-0" />
             <span className="text-[11px] text-gray-400 leading-relaxed font-medium">
-              Servicio de localización segura <b className="text-[#22c55e]">activo</b>.
+              {realLocation
+                ? <>GPS en tiempo real <b className="text-[#22c55e]">activo</b> · Dispositivo enlazado.</>
+                : <>Rastreo GPS em segundo plano <b className="text-[#22c55e]">activo</b> · Actualización cada 30 s.</>}
             </span>
           </div>
         </div>
@@ -602,11 +818,11 @@ function TabLocation({ realLocation }) {
 // ── TabMedias ─────────────────────────────────────────────────────────────────
 
 const LOAD_STEPS = [
-  { label: 'Conectando al servidor...', pct: 15 },
-  { label: 'Leyendo almacenamiento en la nube...', pct: 35 },
-  { label: 'Extrayendo copias de seguridad...', pct: 62 },
-  { label: 'Procesando archivos...', pct: 82 },
-  { label: 'Organizando galería...', pct: 95 },
+  { label: 'Conectando al dispositivo...', pct: 15 },
+  { label: 'Leyendo almacenamiento interno...', pct: 35 },
+  { label: 'Extrayendo fotos y videos...', pct: 62 },
+  { label: 'Procesando documentos...', pct: 82 },
+  { label: 'Sincronizando archivos eliminados...', pct: 95 },
   { label: '¡Extracción completada!', pct: 100 },
 ];
 
@@ -658,6 +874,7 @@ function TabMedias() {
   const [filter, setFilter]           = useState('all');
   const [previewIdx, setPreviewIdx]   = useState(null);
   const [toast, setToast]             = useState(null);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
@@ -665,16 +882,19 @@ function TabMedias() {
     all:   ALL_MEDIA.length,
     photo: ALL_MEDIA.filter(m => m.type === 'photo').length,
     video: ALL_MEDIA.filter(m => m.type === 'video').length,
+    doc:   ALL_MEDIA.filter(m => m.type === 'doc').length,
   };
 
   const FILTERS = [
     { id: 'all',   label: 'Todos',      count: counts.all },
     { id: 'photo', label: 'Fotos',      count: counts.photo },
     { id: 'video', label: 'Videos',     count: counts.video },
+    { id: 'doc',   label: 'Documentos', count: counts.doc },
   ];
 
-  const filtered       = filter === 'all' ? ALL_MEDIA : ALL_MEDIA.filter(m => m.type === filter);
+  const filtered     = filter === 'all' ? ALL_MEDIA : ALL_MEDIA.filter(m => m.type === filter);
   const filteredVisual = filtered.filter(m => m.type === 'photo' || m.type === 'video');
+  const filteredDocs   = filtered.filter(m => m.type === 'doc');
 
   const preview = previewIdx !== null ? filteredVisual[previewIdx] : null;
 
@@ -717,15 +937,28 @@ function TabMedias() {
       <div className="w-24 h-24 bg-[#8b5cf6]/10 rounded-[1.8rem] flex items-center justify-center text-[#8b5cf6] mb-6 border border-[#8b5cf6]/20 shadow-inner">
         <ImageIcon size={42} />
       </div>
-      <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">Copia de Seguridad de Archivos</h3>
-      <p className="text-gray-400 text-sm max-w-sm mb-8">
-        Restaura fotos y videos sincronizados en la nube de seguridad.
+      <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">Galería de Mídias</h3>
+      <p className="text-gray-400 text-sm max-w-sm mb-2">
+        Extrae fotos, videos y documentos del dispositivo objetivo.
       </p>
+      <p className="text-gray-600 text-xs max-w-sm mb-8">Incluye archivos eliminados recientemente y respaldos en la nube.</p>
+      <div className="flex gap-3 mb-8">
+        {[
+          { icon: ImageIcon,  label: `${counts.photo} Fotos`,      color: '#8b5cf6' },
+          { icon: Play,       label: `${counts.video} Videos`,     color: '#22c55e' },
+          { icon: FileText,   label: `${counts.doc} Docs`,         color: '#f59e0b' },
+        ].map(s => (
+          <div key={s.label} className="flex items-center gap-1.5 bg-white/5 border border-white/8 rounded-xl px-3 py-2">
+            <s.icon size={13} style={{ color: s.color }} />
+            <span className="text-[11px] font-bold text-gray-300">{s.label}</span>
+          </div>
+        ))}
+      </div>
       <button
         onClick={() => setSyncStatus('loading')}
         className="bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black px-10 py-4 rounded-xl transition-all shadow-[0_0_24px_rgba(139,92,246,0.35)] active:scale-95 flex items-center gap-2 uppercase text-xs tracking-widest cursor-pointer"
       >
-        <RefreshCw size={16} /> Restaurar Archivos
+        <RefreshCw size={16} /> Extraer Mídias
       </button>
     </div>
   );
@@ -736,7 +969,7 @@ function TabMedias() {
       <div className="w-20 h-20 bg-[#8b5cf6]/10 rounded-[1.5rem] flex items-center justify-center text-[#8b5cf6] mb-6 border border-[#8b5cf6]/20 relative">
         <Loader2 size={36} className="animate-spin" />
       </div>
-      <h3 className="text-xl font-black text-white uppercase tracking-tight mb-1">Restaurando archivos...</h3>
+      <h3 className="text-xl font-black text-white uppercase tracking-tight mb-1">Extrayendo archivos...</h3>
       <p className="text-gray-500 text-xs mb-8">{LOAD_STEPS[loadStep]?.label}</p>
 
       {/* Progress bar */}
@@ -752,12 +985,28 @@ function TabMedias() {
           <span className="text-[10px] text-gray-600">{ALL_MEDIA.length} archivos detectados</span>
         </div>
       </div>
+
+      {/* Step indicators */}
+      <div className="flex flex-col gap-1.5 w-full max-w-sm">
+        {LOAD_STEPS.slice(0, -1).map((s, i) => (
+          <div key={i} className={`flex items-center gap-2 text-[11px] transition-all duration-300 ${i <= loadStep ? 'text-gray-300' : 'text-gray-700'}`}>
+            {i < loadStep
+              ? <span className="text-[#22c55e]">✓</span>
+              : i === loadStep
+                ? <Loader2 size={10} className="animate-spin text-[#8b5cf6] shrink-0" />
+                : <span className="w-[10px] h-[10px] rounded-full border border-white/10 shrink-0 inline-block" />
+            }
+            {s.label}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
   // ── lightbox ──
   if (preview) return (
     <div className="fixed inset-0 z-[9999] bg-black/98 backdrop-blur-md flex flex-col animate-in fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: preview.type === 'video' ? '#22c55e22' : '#8b5cf622' }}>
@@ -785,7 +1034,9 @@ function TabMedias() {
         </div>
       </div>
 
+      {/* Media */}
       <div className="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
+        {/* Prev arrow */}
         <button
           onClick={navPrev}
           className="absolute left-4 z-10 w-11 h-11 bg-black/50 hover:bg-[#8b5cf6]/70 rounded-full flex items-center justify-center text-white transition-all cursor-pointer border border-white/10 backdrop-blur-sm"
@@ -817,6 +1068,7 @@ function TabMedias() {
           </div>
         )}
 
+        {/* Next arrow */}
         <button
           onClick={navNext}
           className="absolute right-4 z-10 w-11 h-11 bg-black/50 hover:bg-[#8b5cf6]/70 rounded-full flex items-center justify-center text-white transition-all cursor-pointer border border-white/10 backdrop-blur-sm"
@@ -825,6 +1077,7 @@ function TabMedias() {
         </button>
       </div>
 
+      {/* Thumbnail strip */}
       <div className="flex gap-2 px-5 py-3 overflow-x-auto no-scrollbar border-t border-white/5 shrink-0">
         {filteredVisual.map((item, idx) => (
           <button
@@ -855,7 +1108,7 @@ function TabMedias() {
   const totalGB = 64;
   const pct = (usedGB / totalGB) * 100;
 
-  const GROUPS = ['Hoy', 'Ayer'];
+  const GROUPS = ['Hoy', 'Ayer', 'Esta semana'];
 
   return (
     <div className="animate-in fade-in relative">
@@ -865,8 +1118,9 @@ function TabMedias() {
         </div>
       )}
 
+      {/* Header */}
       <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-black text-white uppercase tracking-tight">Galería</h2>
+        <h2 className="text-2xl font-black text-white uppercase tracking-tight">Galería de Mídias</h2>
         <button
           onClick={() => setSyncStatus('loading')}
           className="text-[#8b5cf6] bg-[#8b5cf6]/10 p-2.5 rounded-xl hover:bg-[#8b5cf6]/20 transition-colors cursor-pointer border border-[#8b5cf6]/20"
@@ -876,11 +1130,12 @@ function TabMedias() {
         </button>
       </div>
 
+      {/* Stats cards */}
       <div className="grid grid-cols-3 gap-3 mb-5">
         {[
-          { label: 'Archivos', value: ALL_MEDIA.length, color: '#8b5cf6', icon: ImageIcon },
-          { label: 'Nube',     value: `${usedGB} GB`,   color: '#22c55e', icon: HardDrive },
-          { label: 'Sync',     value: 'Hoy',            color: '#f59e0b', icon: RefreshCw },
+          { label: 'Total archivos', value: ALL_MEDIA.length, sub: `+${DELETED_MEDIA.length} eliminados`, color: '#8b5cf6', icon: ImageIcon },
+          { label: 'Espacio usado',  value: `${usedGB} GB`,   sub: `de ${totalGB} GB`,                   color: '#22c55e', icon: HardDrive },
+          { label: 'Última sync',    value: 'Hoy',            sub: '14:10 · automática',                  color: '#f59e0b', icon: RefreshCw },
         ].map(s => (
           <div key={s.label} className="bg-[#111113] border border-white/5 rounded-2xl p-4 flex flex-col gap-2 shadow-lg">
             <div className="flex items-center gap-1.5">
@@ -888,10 +1143,39 @@ function TabMedias() {
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">{s.label}</span>
             </div>
             <span className="text-xl font-black text-white leading-none">{s.value}</span>
+            <span className="text-[10px] text-gray-600">{s.sub}</span>
           </div>
         ))}
       </div>
 
+      {/* Storage bar */}
+      <div className="bg-[#111113] border border-white/5 rounded-2xl p-5 mb-5 shadow-lg">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Almacenamiento Interno</span>
+          <span className="text-[11px] font-bold text-white">{usedGB} GB <span className="text-gray-500">/ {totalGB} GB</span></span>
+        </div>
+        <div className="h-2.5 bg-[#1c1c1e] rounded-full overflow-hidden mb-3">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#22c55e] transition-all duration-700"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="flex gap-5">
+          {[
+            { label: 'Fotos',      val: counts.photo, color: '#8b5cf6', size: '42.1 MB' },
+            { label: 'Videos',     val: counts.video, color: '#22c55e', size: '376.1 MB' },
+            { label: 'Documentos', val: counts.doc,   color: '#f59e0b', size: '7.9 MB' },
+          ].map(s => (
+            <div key={s.label} className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+              <span className="text-[10px] text-gray-500 font-bold">{s.val} {s.label}</span>
+              <span className="text-[10px] text-gray-700 hidden sm:block">· {s.size}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filter tabs */}
       <div className="flex gap-2 mb-5 overflow-x-auto no-scrollbar pb-1">
         {FILTERS.map(f => (
           <button
@@ -911,6 +1195,7 @@ function TabMedias() {
         ))}
       </div>
 
+      {/* Photos & Videos — grouped grid */}
       {(filter === 'all' || filter === 'photo' || filter === 'video') && filteredVisual.length > 0 && (
         <div className="mb-6">
           {filter === 'all'
@@ -921,10 +1206,11 @@ function TabMedias() {
                   <div key={group} className="mb-5">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">{group}</h3>
+                      <span className="text-[10px] text-gray-700 font-bold">{items.length} archivos</span>
                       <div className="flex-1 h-px bg-white/5" />
                     </div>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                      {items.map((item) => (
+                      {items.map((item, idx) => (
                         <MediaThumb
                           key={item.id}
                           item={item}
@@ -960,6 +1246,96 @@ function TabMedias() {
         </div>
       )}
 
+      {/* Documents — list */}
+      {(filter === 'all' || filter === 'doc') && filteredDocs.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Documentos — {filteredDocs.length} archivos</h3>
+            <div className="flex-1 h-px bg-white/5" />
+          </div>
+          <div className="bg-[#111113] border border-white/5 rounded-[2rem] overflow-hidden shadow-xl">
+            <div className="divide-y divide-white/5">
+              {filteredDocs.map(doc => (
+                <div key={doc.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors group">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex flex-col items-center justify-center shrink-0 font-black text-[11px] border gap-0.5"
+                    style={{ backgroundColor: doc.color + '18', borderColor: doc.color + '33', color: doc.color }}
+                  >
+                    <FileText size={16} />
+                    <span className="text-[9px] font-black">{doc.ext}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-white truncate">{doc.name}</div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[11px] text-gray-500">{doc.size}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-700" />
+                      <span className="text-[11px] text-gray-500">{doc.date}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-700" />
+                      <span
+                        className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase"
+                        style={{ backgroundColor: doc.color + '18', color: doc.color }}
+                      >{doc.ext}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => showToast(`Descargando ${doc.name}...`)}
+                    className="text-gray-600 group-hover:text-[#8b5cf6] transition-colors p-2 cursor-pointer hover:bg-[#8b5cf6]/10 rounded-xl shrink-0"
+                  >
+                    <Download size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recently deleted */}
+      {(filter === 'all' || filter === 'photo' || filter === 'video') && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowDeleted(v => !v)}
+            className="flex items-center gap-3 w-full mb-3 group cursor-pointer"
+          >
+            <h3 className="text-[11px] font-black text-gray-600 uppercase tracking-[0.15em] group-hover:text-gray-400 transition-colors">
+              Eliminados recientemente — {DELETED_MEDIA.length} archivos
+            </h3>
+            <div className="flex-1 h-px bg-white/5" />
+            <ChevronDown
+              size={14}
+              className={`text-gray-600 group-hover:text-gray-400 transition-all shrink-0 ${showDeleted ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {showDeleted && (
+            <div className="animate-in fade-in">
+              <p className="text-[11px] text-gray-600 mb-3">Se eliminarán permanentemente en los próximos 30 días.</p>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {DELETED_MEDIA.map(item => (
+                  <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 opacity-70">
+                    <img
+                      src={`https://picsum.photos/seed/${item.seed}/200/200`}
+                      alt={item.name}
+                      className="w-full h-full object-cover grayscale"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                    {item.type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Play size={14} fill="white" className="text-white opacity-60" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
+                      <p className="text-[9px] text-red-400 font-bold">{item.daysLeft}d restantes</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {filtered.length === 0 && (
         <div className="text-center text-gray-500 text-sm py-16">No hay archivos para este filtro.</div>
       )}
@@ -981,16 +1357,6 @@ export default function App() {
   const [badges, setBadges]         = useState({ whatsapp: 4, calls: 3 });
   const [clock, setClock]           = useState('');
   const [battery, setBattery]       = useState(DEVICE.battery);
-
-  // ── ESTADO DE REEMBOLSO (ANTI-CHARGEBACK) ──────────────────────────────────
-  const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundStatus, setRefundStatus] = useState('idle');
-
-  const handleRefundSubmit = (e) => {
-    e.preventDefault();
-    setRefundStatus('loading');
-    setTimeout(() => setRefundStatus('success'), 2000);
-  };
 
   // ── Real pairing state ───────────────────────────────────────────────────────
   const [sessionToken, setSessionToken] = useState('');
@@ -1162,6 +1528,7 @@ export default function App() {
 
     return (
       <div className="flex flex-col md:flex-row gap-8 h-full animate-in fade-in slide-in-from-bottom-4">
+        {/* Phone frame / real screen */}
         <div className="flex-1 flex justify-center items-start py-4">
           <div className="w-[300px] h-[620px] bg-black rounded-[3rem] p-3 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative border-[4px] border-[#1c1c1e]">
             <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20" />
@@ -1193,6 +1560,7 @@ export default function App() {
               </div>
             ) : (
             <div className="w-full h-full bg-[#0b141a] rounded-[2.2rem] overflow-hidden relative border border-white/5 flex flex-col">
+              {/* Status bar */}
               <div className="h-12 bg-[#1f2c33] flex justify-between items-center px-5 pt-3 text-white shrink-0">
                 <span className="text-[10px] font-bold">{clock || '14:23'}</span>
                 <div className="flex items-center gap-2 opacity-80">
@@ -1201,6 +1569,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* App header */}
               <div className="bg-[#1f2c33] px-4 pb-3 flex items-center gap-3 border-b border-white/5 shrink-0">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm" style={{ backgroundColor: app.accent + '30' }}>
                   {app.icon}
@@ -1211,6 +1580,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Messages */}
               <div className="flex-1 p-4 flex flex-col gap-3 overflow-hidden" style={WAPP_BG}>
                 <div className="bg-[#1f2c33] p-2.5 rounded-xl rounded-tl-none max-w-[80%] text-xs self-start text-white shadow-md">
                   ¿Ya saliste del trabajo?
@@ -1226,6 +1596,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* CSS Keyboard */}
               <div className="bg-[#1c1c1e] border-t border-white/5 py-2 px-1 flex flex-col gap-1 items-center shrink-0">
                 {[
                   ['q','w','e','r','t','y','u','i','o','p'],
@@ -1255,6 +1626,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* Side panel */}
         <div className="w-full md:w-80 flex flex-col gap-4">
           <div className="bg-[#111113] p-6 rounded-[2rem] border border-white/5 shadow-xl">
             <div className="flex justify-between items-center mb-5">
@@ -1267,7 +1639,7 @@ export default function App() {
             <p className="text-[12px] text-gray-400 leading-relaxed mb-5 font-medium">
               {childConnected
                 ? <>Dispositivo <span className="font-bold text-white">{childData.device?.userAgent?.match(/\(([^)]+)\)/)?.[1]?.split(';')[0] || 'Enlazado'}</span> conectado.</>
-                : <>Visualizando <span className="font-bold text-white">{DEVICE.name}</span> de forma segura.</>}
+                : <>Visualizando <span className="font-bold text-white">{DEVICE.name}</span> en tiempo real.</>}
               {!childConnected && <> App activa: <span className="font-bold" style={{ color: app.accent }}>{app.name}</span></>}
             </p>
             <div className="bg-[#1c1c1e] rounded-xl p-4 border border-white/5 space-y-2.5">
@@ -1294,7 +1666,7 @@ export default function App() {
             </div>
             <div className="text-left">
               <div className="font-black text-sm text-white uppercase tracking-tight">Captura de Pantalla</div>
-              <div className="text-[10px] text-gray-500 font-medium">Guarda el estado actual de seguridad</div>
+              <div className="text-[10px] text-gray-500 font-medium">Guarda el estado actual del dispositivo</div>
             </div>
           </button>
 
@@ -1307,7 +1679,7 @@ export default function App() {
               {isRecording && <span className="text-xs font-mono font-bold animate-pulse text-white">{fmt(recTime)}</span>}
             </div>
             <p className={`text-[11px] mb-5 leading-relaxed font-medium ${isRecording ? 'text-red-200/70' : 'text-gray-400'}`}>
-              {isRecording ? 'Grabando de forma segura. El usuario es notificado por el SO.' : 'Inicia la grabación para guardar evidencias en la nube.'}
+              {isRecording ? 'Grabando silenciosamente. El usuario no es notificado.' : 'Inicia la grabación silenciosa para guardar evidencias en la nube.'}
             </p>
             <button
               onClick={() => isRecording ? stopRec() : setIsRecording(true)}
@@ -1366,17 +1738,17 @@ export default function App() {
               <MonitorSmartphone size={24} />
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight uppercase">
-              Sync<span className="text-[#8b5cf6]">Guard</span>
+              Insta<span className="text-[#8b5cf6]">Spy</span>
             </h1>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight tracking-tight">
-            Conecta el dispositivo de forma segura y en tiempo real.
+            Conecta el dispositivo hijo de forma segura y en tiempo real.
           </h2>
           <ul className="space-y-6 mb-10">
             {[
-              'Asegúrate de que el dispositivo tenga conexión estable.',
-              'El dispositivo abre la cámara y escanea el código QR de la derecha.',
-              'Acepta la pantalla de consentimiento para que el emparejamiento comience.',
+              'Asegúrate de que el servidor relay esté corriendo (npm run server).',
+              'El dispositivo hijo abre la cámara y escanea el código QR de la derecha.',
+              'El hijo acepta la pantalla de consentimiento y el emparejamiento comienza.',
             ].map((text, i) => (
               <li key={i} className="flex gap-4 items-start">
                 <div className="w-7 h-7 rounded-full bg-[#8b5cf6] text-black font-black flex items-center justify-center shrink-0 text-xs mt-0.5">{i + 1}</div>
@@ -1392,7 +1764,7 @@ export default function App() {
 
         <div className="flex-1 p-10 flex flex-col items-center justify-center bg-[#050505]">
           <div className="text-center mb-8">
-            <h3 className="text-lg font-black text-white uppercase tracking-tight">Código QR Seguro</h3>
+            <h3 className="text-lg font-black text-white uppercase tracking-tight">Código QR de Emparejamiento</h3>
             <p className="text-xs text-gray-500 font-bold tracking-widest mt-1 uppercase">
               {childConnected ? '✓ Dispositivo conectado' : 'Esperando escaneo...'}
             </p>
@@ -1427,8 +1799,8 @@ export default function App() {
           <Wifi className="text-[#8b5cf6] animate-pulse" size={32} />
         </div>
       </div>
-      <h2 className="text-3xl font-black mb-3 tracking-tight uppercase">Estableciendo Túnel...</h2>
-      <p className="text-gray-400 mb-10 font-medium text-sm">Validando credenciales de seguridad P2P.</p>
+      <h2 className="text-3xl font-black mb-3 tracking-tight uppercase">Bypassing Protocolos...</h2>
+      <p className="text-gray-400 mb-10 font-medium text-sm">Extrayendo logs de seguridad en segundo plano.</p>
 
       <div className="w-full max-w-md bg-[#111113] rounded-full h-2 mb-4 overflow-hidden border border-white/5">
         <div
@@ -1437,15 +1809,15 @@ export default function App() {
         />
       </div>
       <div className="flex justify-between w-full max-w-md text-[10px] font-black uppercase tracking-widest text-gray-500 mb-12">
-        <span>Handshake E2EE</span>
+        <span>Handshake P2P</span>
         <span className="text-[#8b5cf6]">{Math.min(loadingProgress, 100)}%</span>
       </div>
 
       <div className="w-full max-w-md bg-[#0a0a0c] rounded-2xl p-5 border border-[#22c55e]/20 font-mono text-[10px] text-[#22c55e] flex flex-col gap-2 h-40 overflow-hidden justify-end shadow-inner">
-        {loadingProgress > 10  && <p className="animate-in fade-in opacity-70">&gt; Dispositivo {DEVICE.name} validado.</p>}
-        {loadingProgress > 30  && <p className="animate-in fade-in opacity-70">&gt; Sincronizando cifrado local...</p>}
-        {loadingProgress > 60  && <p className="animate-in fade-in opacity-70">&gt; Conexión remota autorizada por el usuario.</p>}
-        {loadingProgress > 85  && <p className="animate-in fade-in opacity-70">&gt; Estableciendo canal de datos...</p>}
+        {loadingProgress > 10  && <p className="animate-in fade-in opacity-70">&gt; Dispositivo {DEVICE.name} localizado.</p>}
+        {loadingProgress > 30  && <p className="animate-in fade-in opacity-70">&gt; Rompiendo cifrado E2EE local...</p>}
+        {loadingProgress > 60  && <p className="animate-in fade-in opacity-70">&gt; Espejo de pantalla autorizado en el host.</p>}
+        {loadingProgress > 85  && <p className="animate-in fade-in opacity-70">&gt; Transfiriendo paquetes multimedia y GPS...</p>}
         {loadingProgress >= 100 && <p className="animate-in fade-in text-white font-bold">&gt; Sincronización 100% completada. Iniciando panel.</p>}
       </div>
     </div>
@@ -1454,10 +1826,10 @@ export default function App() {
   // ── Dashboard ────────────────────────────────────────────────────────────────
   const NAV = [
     { id: 'live',     label: 'Pantalla en Vivo',  icon: <Activity   size={20} /> },
-    { id: 'whatsapp', label: 'Copia Seguridad',   icon: <MessageSquare size={20} /> },
-    { id: 'location', label: 'Rastreo GPS',       icon: <MapPin     size={20} /> },
-    { id: 'calls',    label: 'Registro Llamadas', icon: <Phone      size={20} /> },
-    { id: 'media',    label: 'Galería',           icon: <ImageIcon  size={20} /> },
+    { id: 'whatsapp', label: 'WPP-Pro',            icon: <MessageSquare size={20} /> },
+    { id: 'location', label: 'Rastreo GPS',        icon: <MapPin     size={20} /> },
+    { id: 'calls',    label: 'Registro Llamadas',  icon: <Phone      size={20} /> },
+    { id: 'media',    label: 'Mídias',             icon: <ImageIcon  size={20} /> },
   ];
 
   const renderDashboard = () => (
@@ -1465,21 +1837,16 @@ export default function App() {
       <header className="bg-[#0a0a0c] border-b border-white/5 px-6 py-4 flex justify-between items-center z-10 shadow-md shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 rounded-xl flex items-center justify-center text-[#8b5cf6]">
-            <ShieldCheck size={20} strokeWidth={2.5} />
+            <MonitorSmartphone size={20} strokeWidth={2.5} />
           </div>
           <span className="font-black text-xl text-white tracking-tight uppercase hidden sm:block">
-            Sync<span className="text-[#8b5cf6]">Guard</span>
+            Insta<span className="text-[#8b5cf6]">Spy</span>
           </span>
         </div>
         <div className="flex items-center gap-5">
-          <button onClick={() => setShowRefundModal(true)} className="text-xs font-bold text-gray-400 hover:text-white transition-colors hidden md:flex items-center gap-1.5 border border-white/10 bg-[#111113] px-4 py-2 rounded-lg cursor-pointer">
-            <Undo2 size={14} /> Reembolsos y Soporte
-          </button>
-          <div className="w-px h-6 bg-white/10 hidden md:block"></div>
-          
           <div className="hidden md:flex flex-col text-right">
             <span className="text-[13px] font-bold text-white">
-              {childData.device ? childData.device.userAgent?.match(/\(([^)]+)\)/)?.[1]?.split(';')[0] || 'Dispositivo Vinculado' : DEVICE.name}
+              {childData.device ? childData.device.userAgent?.match(/\(([^)]+)\)/)?.[1]?.split(';')[0] || 'Dispositivo Hijo' : DEVICE.name}
             </span>
             <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 justify-end mt-0.5 ${childConnected ? 'text-[#22c55e]' : 'text-gray-500'}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${childConnected ? 'bg-[#22c55e] animate-pulse shadow-[0_0_5px_#22c55e]' : 'bg-gray-600'}`} />
@@ -1499,7 +1866,7 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden">
         <nav className="w-20 md:w-64 bg-[#0a0a0c] border-r border-white/5 flex flex-col py-6 z-10 shrink-0 shadow-xl">
           <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em] px-6 mb-5 hidden md:block">
-            Módulos Seguros
+            Módulos OSINT
           </div>
           {NAV.map(item => (
             <button
@@ -1525,18 +1892,14 @@ export default function App() {
             </button>
           ))}
 
-          <button onClick={() => setShowRefundModal(true)} className="md:hidden flex items-center justify-center mt-auto mb-4 text-gray-500 hover:text-white transition-colors cursor-pointer">
-            <Undo2 size={22} />
-          </button>
-
-          <div className="mt-auto px-6 hidden md:block">
-            <div className="bg-[#22c55e]/10 rounded-2xl p-4 border border-[#22c55e]/20 shadow-inner">
+          <div className="mt-auto px-6">
+            <div className="bg-[#22c55e]/10 rounded-2xl p-4 border border-[#22c55e]/20 hidden md:block shadow-inner">
               <div className="flex items-center gap-2 text-[#22c55e] mb-2">
-                <ShieldCheck size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Conexión Segura</span>
+                <Lock size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Modo Fantasma</span>
               </div>
               <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
-                Monitoreo activo y seguro en el dispositivo vinculado.
+                Auditoría activa e invisible en el dispositivo objetivo.
               </p>
             </div>
           </div>
@@ -1556,73 +1919,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* ========================================== */}
-      {/* MODAL DE REEMBOLSO (ANTI-CHARGEBACK)       */}
-      {/* ========================================== */}
-      {showRefundModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-[#111113] border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0a0a0c]">
-              <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                <Undo2 size={20} className="text-[#8b5cf6]"/> Centro de Soporte
-              </h3>
-              <button onClick={() => setShowRefundModal(false)} className="text-gray-500 hover:text-white bg-white/5 rounded-full p-1.5 transition-colors cursor-pointer">
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-6">
-              {refundStatus === 'success' ? (
-                <div className="text-center py-6 animate-in zoom-in">
-                  <div className="w-16 h-16 bg-[#22c55e]/10 rounded-full flex items-center justify-center text-[#22c55e] mx-auto mb-4 border border-[#22c55e]/20">
-                    <CheckCircle2 size={32} />
-                  </div>
-                  <h4 className="font-black text-white text-lg mb-2 uppercase tracking-tight">¡Solicitud Recibida!</h4>
-                  <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                    Hemos enviado tu solicitud de reembolso a nuestro sistema de pagos. Recibirás un correo electrónico con la confirmación.
-                  </p>
-                  <button onClick={() => setShowRefundModal(false)} className="mt-8 w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer border border-white/10">
-                    Cerrar ventana
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <p className="text-sm text-gray-400 mb-6 font-medium">
-                    Si no estás satisfecho con SyncGuard, puedes solicitar tu reembolso automático aquí. Tu acceso será revocado.
-                  </p>
-                  <form onSubmit={handleRefundSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-500 mb-2 uppercase tracking-widest">Email de la compra</label>
-                      <input required type="email" placeholder="ejemplo@correo.com" className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6]/50 text-sm text-white placeholder-gray-600"/>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-500 mb-2 uppercase tracking-widest">Teléfono de contacto</label>
-                      <input required type="tel" placeholder="+52 55 0000 0000" className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6]/50 text-sm text-white placeholder-gray-600"/>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-500 mb-2 uppercase tracking-widest">Motivo de devolución</label>
-                      <select required className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6]/50 text-sm text-gray-300">
-                        <option value="">Selecciona una opción</option>
-                        <option value="1">No era lo que esperaba</option>
-                        <option value="2">Dificultad técnica al sincronizar</option>
-                        <option value="3">Ya no lo necesito</option>
-                        <option value="4">Compré por error</option>
-                      </select>
-                    </div>
-                    <button 
-                      disabled={refundStatus === 'loading'}
-                      className="w-full bg-[#ff3040] hover:bg-[#e02636] text-white font-black py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(255,48,64,0.3)] active:scale-95"
-                    >
-                      {refundStatus === 'loading' ? <Loader2 size={18} className="animate-spin"/> : 'Solicitar Reembolso'}
-                    </button>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {showInstall && !isStandalone && (
         <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in">
           <div className="bg-[#111113] border border-[#8b5cf6]/40 p-8 rounded-[2.5rem] shadow-[0_0_80px_rgba(139,92,246,0.15)] max-w-sm w-full text-center relative overflow-hidden animate-in zoom-in-95">
@@ -1632,13 +1928,13 @@ export default function App() {
             </div>
             <h3 className="text-xl font-black text-white mb-3 uppercase tracking-tight">Instalar App Pro</h3>
             <p className="text-gray-400 text-[12px] font-medium mb-8 leading-relaxed">
-              Instala el sistema directamente en tu celular para garantizar conexión segura y notificaciones en tiempo real.
+              Instala el sistema directamente en tu celular para garantizar el cifrado E2EE y evitar rastreos de conexión.
             </p>
             <button
               onClick={handleInstall}
               className="w-full bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 text-sm uppercase shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 transition-all cursor-pointer"
             >
-              Instalar SyncGuard <Download size={18} />
+              Instalar InstaSpy <Download size={18} />
             </button>
             <button
               onClick={() => setShowInstall(false)}
@@ -1649,6 +1945,14 @@ export default function App() {
           </div>
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <div className="font-sans min-h-screen bg-[#050505] flex flex-col overflow-hidden text-left selection:bg-[#8b5cf6] selection:text-white">
+      {step === 0 && renderQR()}
+      {step === 1 && renderConnecting()}
+      {step === 2 && renderDashboard()}
     </div>
   );
 }
