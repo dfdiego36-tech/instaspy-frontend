@@ -1525,8 +1525,8 @@ export default function App() {
             </button>
           ))}
 
-          <button onClick={() => setShowRefundModal(true)} className="md:hidden flex items-center justify-center mt-auto mb-4 text-gray-500 hover:text-white transition-colors cursor-pointer">
-            <Undo2 size={22} />
+          <button onClick={() => setShowRefundModal(true)} className="md:hidden mx-3 mt-auto mb-4 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer rounded-xl py-2.5 px-3 text-[10px] font-black uppercase tracking-wider">
+            <Undo2 size={14} /> Soporte
           </button>
 
           <div className="mt-auto px-6 hidden md:block">
