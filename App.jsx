@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   QrCode, Smartphone, ShieldCheck, MonitorSmartphone,
   MessageSquare, MapPin, Wifi, Activity, Lock,
-  RefreshCw, Power, Loader2, ChevronRight, Video, Phone, ArrowLeft,
+  RefreshCw, Power, Loader2, ChevronRight, ChevronLeft, Video, Phone, ArrowLeft,
   Send, PhoneIncoming, PhoneOutgoing, PhoneMissed, StopCircle, PlayCircle,
   DownloadCloud, Download, Terminal, Search, X, Navigation, Camera,
-  Image as ImageIcon, ZoomIn, Monitor, HardDrive, Undo2, CheckCircle2
+  Image as ImageIcon, ZoomIn, Monitor, HardDrive, Undo2, CheckCircle2, Play
 } from 'lucide-react';
 import QRCodeLib from 'qrcode';
 import PairPage from './Pair.jsx';
