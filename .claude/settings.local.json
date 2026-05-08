@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(if \\(-not $?\\) { \"Diret�rio vazio ou inexistente\" })",
+      "PowerShell(\\(Get-Content \"C:\\\\Stakei\\\\App.jsx\"\\).Count)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force)",
+      "Bash(npm run *)",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(npx vite *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(npm install *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5176)"
+    ]
+  }
+}

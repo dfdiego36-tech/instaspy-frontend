@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #050505;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===================== KEYFRAMES ===================== */
+
+/* Logo flutua levemente */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Brilho pulsante roxo — CTAs principais */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 18px rgba(139,92,246,0.3), 0 4px 20px rgba(139,92,246,0.15); }
+  50%       { box-shadow: 0 0 38px rgba(139,92,246,0.6), 0 4px 40px rgba(139,92,246,0.35); }
+}
+
+/* Badge de notificação pulsa */
+@keyframes badgePop {
+  0%, 100% { transform: scale(1); }
+  40%       { transform: scale(1.45); }
+  60%       { transform: scale(1.2); }
+}
+
+/* Banner VIP brilha */
+@keyframes vipGlow {
+  0%, 100% { box-shadow: 0 0 18px rgba(107,71,181,0.35); }
+  50%       { box-shadow: 0 0 42px rgba(107,71,181,0.65); }
+}
+
+/* Conteúdo bloqueado — shimmer de FOMO */
+@keyframes shimmerBlur {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.72; }
+}
+
+/* Modal entra com spring */
+@keyframes modalSpring {
+  0%   { opacity: 0; transform: scale(0.82) translateY(12px); }
+  65%  { transform: scale(1.04) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Mensagens entram suavemente */
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* Ícone Zap bate */
+@keyframes zapBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%       { transform: translateY(-3px) rotate(-8deg); }
+  75%       { transform: translateY(-1px) rotate(6deg); }
+}
+
+/* Coração pulsa */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  20%       { transform: scale(1.2); }
+  40%       { transform: scale(1); }
+  60%       { transform: scale(1.12); }
+}
+
+/* Anel de story pisca levemente */
+@keyframes storyRing {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* Slide-in da direita para views do app */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide-in de baixo para cards */
+@keyframes slideInBottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade simples */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes zoomIn95 {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ===================== UTILITIES ===================== */
+
+@layer utilities {
+  .animate-in          { animation-fill-mode: both; }
+  .fade-in             { animation: fadeIn 0.4s ease; }
+  .zoom-in-95          { animation: zoomIn95 0.3s ease; }
+  .slide-in-from-right { animation: slideInRight 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .slide-in-from-bottom-4 { animation: slideInBottom 0.4s ease; }
+  .slide-in-from-bottom-8 { animation: slideInBottom 0.5s ease; }
+  .slide-in-from-top-2    { animation: slideInTop 0.3s ease; }
+  .duration-300  { animation-duration: 300ms; }
+  .duration-700  { animation-duration: 700ms; }
+  .duration-1000 { animation-duration: 1000ms; }
+  .delay-200     { animation-delay: 200ms; }
+  .delay-500     { animation-delay: 500ms; }
+  .fill-mode-both { animation-fill-mode: both; }
+}
+
+@keyframes slideInTop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
