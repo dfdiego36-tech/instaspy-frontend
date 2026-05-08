@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   QrCode, Smartphone, ShieldCheck, MonitorSmartphone,
   MessageSquare, MapPin, Wifi, Activity, Lock,
-  RefreshCw, Power, Loader2, ChevronRight, Video, Phone, ArrowLeft,
+  RefreshCw, Power, Loader2, ChevronRight, ChevronLeft, ChevronDown, Video, Phone, ArrowLeft,
   Send, PhoneIncoming, PhoneOutgoing, PhoneMissed, StopCircle, PlayCircle,
   DownloadCloud, Download, Terminal, Search, X, Navigation, Camera,
-  Image as ImageIcon, Film, FileText, Play, ZoomIn, Monitor,
+  Image as ImageIcon, Film, FileText, Play, ZoomIn, Monitor, HardDrive,
 } from 'lucide-react';
 import QRCodeLib from 'qrcode';
 import PairPage from './Pair.jsx';
@@ -81,8 +81,78 @@ const ALL_CHATS = [
     lastMsg: 'Tu paquete ha sido entregado.',
     time: 'Ayer',
     unread: 0,
+    online: false,
     messages: [
       { text: 'Tu paquete #MX-98234 ha sido entregado en la dirección registrada.', isSender: false, time: 'Ayer 15:30' },
+    ],
+  },
+  {
+    id: 6,
+    contact: 'Sara López',
+    lastMsg: 'Ese lugar estaba increíble 😍',
+    time: 'Ayer',
+    unread: 2,
+    online: true,
+    messages: [
+      { text: '¿Fuiste al concierto ayer?', isSender: false, time: 'Ayer 20:00' },
+      { text: 'Sí! Estuvo increíble la verdad', isSender: true, time: 'Ayer 20:15' },
+      { text: 'Ese lugar estaba increíble 😍', isSender: false, time: 'Ayer 20:30' },
+    ],
+  },
+  {
+    id: 7,
+    contact: 'Familia 👨‍👩‍👧',
+    lastMsg: 'Mamá: ¿Quién viene el domingo?',
+    time: 'Dom',
+    unread: 5,
+    online: false,
+    messages: [
+      { text: 'Hola a todos 👋', isSender: false, time: 'Dom 10:00', sender: 'Papá' },
+      { text: '¿Quién viene el domingo a comer?', isSender: false, time: 'Dom 10:05', sender: 'Mamá' },
+      { text: 'Yo voy!', isSender: true, time: 'Dom 10:10' },
+      { text: 'Yo también 🙋', isSender: false, time: 'Dom 10:12', sender: 'Hermana' },
+      { text: '¿Quién viene el domingo?', isSender: false, time: 'Dom 10:20', sender: 'Mamá' },
+    ],
+  },
+  {
+    id: 8,
+    contact: 'Javier M.',
+    lastMsg: 'Dale, hablamos mañana',
+    time: 'Lun',
+    unread: 0,
+    online: false,
+    messages: [
+      { text: '¿Tienes el número del cliente nuevo?', isSender: true, time: 'Lun 14:00' },
+      { text: 'Sí, te lo mando en un momento', isSender: false, time: 'Lun 14:05' },
+      { text: 'Listo, ya te lo envié por correo', isSender: false, time: 'Lun 14:18' },
+      { text: 'Dale, hablamos mañana', isSender: false, time: 'Lun 14:20' },
+    ],
+  },
+  {
+    id: 9,
+    contact: 'David R.',
+    lastMsg: '¡¡Goool!! ⚽🔥',
+    time: 'Dom',
+    unread: 0,
+    online: true,
+    messages: [
+      { text: '¿Estás viendo el partido?', isSender: false, time: 'Dom 19:00' },
+      { text: 'Sí! Qué partido tan intenso', isSender: true, time: 'Dom 19:02' },
+      { text: 'Ese árbitro está mal 😂', isSender: false, time: 'Dom 19:30' },
+      { text: '¡¡Goool!! ⚽🔥', isSender: false, time: 'Dom 19:45' },
+    ],
+  },
+  {
+    id: 10,
+    contact: 'Rappi 🛵',
+    lastMsg: 'Tu pedido fue entregado ✓',
+    time: 'Sáb',
+    unread: 0,
+    online: false,
+    messages: [
+      { text: 'Tu pedido #4521 fue confirmado 🎉', isSender: false, time: 'Sáb 12:00' },
+      { text: 'Tu repartidor Rodrigo está en camino 🛵', isSender: false, time: 'Sáb 12:15' },
+      { text: '¡Tu pedido fue entregado! ✓ Buen provecho', isSender: false, time: 'Sáb 12:45' },
     ],
   },
 ];
@@ -105,24 +175,41 @@ const LOCATIONS = [
 ];
 
 const ALL_MEDIA = [
-  { id: 1,  type: 'photo', name: 'IMG_4821.JPG',         size: '3.2 MB',   date: 'Hoy, 14:10',  seed: 237 },
-  { id: 2,  type: 'photo', name: 'IMG_4820.JPG',         size: '2.8 MB',   date: 'Hoy, 13:45',  seed: 433 },
-  { id: 3,  type: 'photo', name: 'IMG_4819.JPG',         size: '4.1 MB',   date: 'Hoy, 11:20',  seed: 119 },
-  { id: 4,  type: 'photo', name: 'IMG_4815.JPG',         size: '3.7 MB',   date: 'Ayer, 19:30', seed: 674 },
-  { id: 5,  type: 'photo', name: 'IMG_4810.JPG',         size: '2.5 MB',   date: 'Ayer, 18:15', seed: 321 },
-  { id: 6,  type: 'photo', name: 'IMG_4808.JPG',         size: '3.9 MB',   date: 'Ayer, 16:00', seed: 892 },
-  { id: 7,  type: 'photo', name: 'IMG_4801.JPG',         size: '2.1 MB',   date: 'Ayer, 14:30', seed: 555 },
-  { id: 8,  type: 'photo', name: 'IMG_4799.JPG',         size: '3.4 MB',   date: 'Lun, 20:00',  seed: 743 },
-  { id: 9,  type: 'photo', name: 'IMG_4795.JPG',         size: '2.9 MB',   date: 'Lun, 17:45',  seed: 188 },
-  { id: 10, type: 'photo', name: 'IMG_4790.JPG',         size: '4.3 MB',   date: 'Lun, 12:10',  seed: 412 },
-  { id: 11, type: 'video', name: 'VID_4821.MP4',         size: '48.3 MB',  date: 'Hoy, 12:00',  seed: 601, duration: '0:45' },
-  { id: 12, type: 'video', name: 'VID_4815.MP4',         size: '124.7 MB', date: 'Ayer, 20:15', seed: 347, duration: '2:13' },
-  { id: 13, type: 'video', name: 'VID_4800.MP4',         size: '67.2 MB',  date: 'Lun, 15:30',  seed: 799, duration: '1:08' },
-  { id: 14, type: 'doc',   name: 'Contrato_2025.pdf',    size: '1.2 MB',   date: 'Ayer, 10:00', ext: 'PDF',  color: '#ef4444' },
-  { id: 15, type: 'doc',   name: 'Informe_Ventas.xlsx',  size: '845 KB',   date: 'Lun, 09:30',  ext: 'XLS',  color: '#22c55e' },
-  { id: 16, type: 'doc',   name: 'Presentación.pptx',    size: '5.4 MB',   date: 'Dom, 18:00',  ext: 'PPT',  color: '#f97316' },
-  { id: 17, type: 'doc',   name: 'Notas_reunión.docx',   size: '320 KB',   date: 'Dom, 14:30',  ext: 'DOC',  color: '#3b82f6' },
-  { id: 18, type: 'doc',   name: 'Recibo_pago.pdf',      size: '220 KB',   date: 'Sáb, 11:00',  ext: 'PDF',  color: '#ef4444' },
+  // ── Hoy ──
+  { id: 1,  type: 'photo', name: 'IMG_4821.JPG', size: '3.2 MB',   date: 'Hoy, 14:10',  seed: 237, group: 'Hoy' },
+  { id: 2,  type: 'photo', name: 'IMG_4820.JPG', size: '2.8 MB',   date: 'Hoy, 13:45',  seed: 433, group: 'Hoy' },
+  { id: 3,  type: 'photo', name: 'IMG_4819.JPG', size: '4.1 MB',   date: 'Hoy, 11:20',  seed: 119, group: 'Hoy' },
+  { id: 4,  type: 'photo', name: 'IMG_4818.JPG', size: '2.3 MB',   date: 'Hoy, 10:05',  seed: 501, group: 'Hoy' },
+  { id: 5,  type: 'photo', name: 'IMG_4817.JPG', size: '3.6 MB',   date: 'Hoy, 09:30',  seed: 622, group: 'Hoy' },
+  { id: 6,  type: 'video', name: 'VID_4821.MP4', size: '48.3 MB',  date: 'Hoy, 12:00',  seed: 601, duration: '0:45', group: 'Hoy' },
+  // ── Ayer ──
+  { id: 7,  type: 'photo', name: 'IMG_4815.JPG', size: '3.7 MB',   date: 'Ayer, 19:30', seed: 674, group: 'Ayer' },
+  { id: 8,  type: 'photo', name: 'IMG_4810.JPG', size: '2.5 MB',   date: 'Ayer, 18:15', seed: 321, group: 'Ayer' },
+  { id: 9,  type: 'photo', name: 'IMG_4808.JPG', size: '3.9 MB',   date: 'Ayer, 16:00', seed: 892, group: 'Ayer' },
+  { id: 10, type: 'photo', name: 'IMG_4801.JPG', size: '2.1 MB',   date: 'Ayer, 14:30', seed: 555, group: 'Ayer' },
+  { id: 11, type: 'photo', name: 'IMG_4799.JPG', size: '3.4 MB',   date: 'Ayer, 12:00', seed: 743, group: 'Ayer' },
+  { id: 12, type: 'video', name: 'VID_4815.MP4', size: '124.7 MB', date: 'Ayer, 20:15', seed: 347, duration: '2:13', group: 'Ayer' },
+  { id: 13, type: 'doc',   name: 'Contrato_2025.pdf',   size: '1.2 MB',  date: 'Ayer, 10:00', ext: 'PDF', color: '#ef4444', group: 'Ayer' },
+  // ── Esta semana ──
+  { id: 14, type: 'photo', name: 'IMG_4795.JPG', size: '2.9 MB',   date: 'Lun, 17:45',  seed: 188, group: 'Esta semana' },
+  { id: 15, type: 'photo', name: 'IMG_4790.JPG', size: '4.3 MB',   date: 'Lun, 12:10',  seed: 412, group: 'Esta semana' },
+  { id: 16, type: 'photo', name: 'IMG_4785.JPG', size: '3.1 MB',   date: 'Lun, 09:00',  seed: 789, group: 'Esta semana' },
+  { id: 17, type: 'photo', name: 'IMG_4780.JPG', size: '2.7 MB',   date: 'Dom, 18:30',  seed: 334, group: 'Esta semana' },
+  { id: 18, type: 'photo', name: 'IMG_4775.JPG', size: '3.8 MB',   date: 'Dom, 15:20',  seed: 567, group: 'Esta semana' },
+  { id: 19, type: 'photo', name: 'IMG_4770.JPG', size: '2.4 MB',   date: 'Sáb, 21:10',  seed: 123, group: 'Esta semana' },
+  { id: 20, type: 'video', name: 'VID_4800.MP4', size: '67.2 MB',  date: 'Lun, 15:30',  seed: 799, duration: '1:08', group: 'Esta semana' },
+  { id: 21, type: 'video', name: 'VID_4785.MP4', size: '88.5 MB',  date: 'Dom, 19:00',  seed: 445, duration: '1:32', group: 'Esta semana' },
+  { id: 22, type: 'doc',   name: 'Informe_Ventas.xlsx', size: '845 KB',  date: 'Lun, 09:30',  ext: 'XLS', color: '#22c55e', group: 'Esta semana' },
+  { id: 23, type: 'doc',   name: 'Presentación.pptx',  size: '5.4 MB',  date: 'Dom, 18:00',  ext: 'PPT', color: '#f97316', group: 'Esta semana' },
+  { id: 24, type: 'doc',   name: 'Notas_reunión.docx', size: '320 KB',  date: 'Dom, 14:30',  ext: 'DOC', color: '#3b82f6', group: 'Esta semana' },
+  { id: 25, type: 'doc',   name: 'Recibo_pago.pdf',    size: '220 KB',  date: 'Sáb, 11:00',  ext: 'PDF', color: '#ef4444', group: 'Esta semana' },
+];
+
+const DELETED_MEDIA = [
+  { id: 'd1', type: 'photo', name: 'IMG_4760.JPG', size: '2.6 MB', date: 'Hace 3 días', seed: 903, daysLeft: 27 },
+  { id: 'd2', type: 'photo', name: 'IMG_4755.JPG', size: '3.3 MB', date: 'Hace 5 días', seed: 456, daysLeft: 25 },
+  { id: 'd3', type: 'video', name: 'VID_4760.MP4', size: '55.1 MB', date: 'Hace 7 días', seed: 678, daysLeft: 23, duration: '0:58' },
+  { id: 'd4', type: 'photo', name: 'IMG_4750.JPG', size: '1.9 MB', date: 'Hace 12 días', seed: 211, daysLeft: 18 },
 ];
 
 const AUTO_REPLIES = ['Ok, entendido.', 'De acuerdo', 'Ahora te respondo.', 'Un momento...', 'Claro!', 'Ok'];
@@ -132,27 +219,28 @@ const WAPP_BG = { backgroundColor: '#0b141a' };
 // ── TabWhatsApp ────────────────────────────────────────────────────────────────
 
 function TabWhatsApp({ onBadgeChange }) {
-  const [step, setStep]             = useState(0);
-  const [phone, setPhone]           = useState('+52 ');
-  const [logs, setLogs]             = useState([]);
-  const [chats, setChats]           = useState(ALL_CHATS);
-  const [activeChat, setActiveChat] = useState(null);
-  const [query, setQuery]           = useState('');
-  const [reply, setReply]           = useState('');
-  const [localMsgs, setLocalMsgs]   = useState([]);
-  const [isTyping, setIsTyping]     = useState(false);
-  const chatEndRef = useRef(null);
-  const inputRef   = useRef(null);
+  const [step, setStep]               = useState(0);
+  const [phone, setPhone]             = useState('+52 ');
+  const [logs, setLogs]               = useState([]);
+  const [chats, setChats]             = useState(ALL_CHATS);
+  const [activeChat, setActiveChat]   = useState(null);
+  const [query, setQuery]             = useState('');
+  const [reply, setReply]             = useState('');
+  const [localMsgs, setLocalMsgs]     = useState([]);
+  const [isTyping, setIsTyping]       = useState(false);
+  const [showNewContact, setShowNewContact] = useState(false);
+  const [newName, setNewName]         = useState('');
+  const [newPhone2, setNewPhone2]     = useState('+52 ');
+  const [incomingToast, setIncomingToast] = useState(null);
+  const chatEndRef   = useRef(null);
+  const inputRef     = useRef(null);
+  const activeChatId = useRef(null);
 
   const totalUnread = chats.reduce((s, c) => s + c.unread, 0);
-
   useEffect(() => { onBadgeChange?.('whatsapp', totalUnread); }, [totalUnread]);
+  useEffect(() => { activeChatId.current = activeChat?.id ?? null; }, [activeChat]);
 
-  const filtered = chats.filter(c =>
-    c.contact.toLowerCase().includes(query.toLowerCase()) ||
-    c.lastMsg.toLowerCase().includes(query.toLowerCase())
-  );
-
+  // Terminal loading
   useEffect(() => {
     if (step !== 1) return;
     const seq = [
@@ -163,15 +251,38 @@ function TabWhatsApp({ onBadgeChange }) {
       'Descifrando base de datos (msgstore.db)...',
       'Sincronización completada con éxito.',
     ];
-    let i = 0;
-    setLogs([]);
+    let i = 0; setLogs([]);
     const id = setInterval(() => {
-      setLogs(prev => [...prev, seq[i]]);
-      i++;
+      setLogs(prev => [...prev, seq[i++]]);
       if (i >= seq.length) { clearInterval(id); setTimeout(() => setStep(2), 1000); }
     }, 700);
     return () => clearInterval(id);
   }, [step]);
+
+  // Periodic incoming messages
+  useEffect(() => {
+    if (step !== 2) return;
+    const FAKE = ['👍','Ok!','Sí, ya voy','Un momento...','¿Cuándo llegas?','Te llamo después','Perfecto! 😄','😂😂','Oye, ¿viste eso?','Nos vemos luego','Dale!','Listo 👌'];
+    const fire = () => {
+      setChats(prev => {
+        const idx = Math.floor(Math.random() * prev.length);
+        const msg = FAKE[Math.floor(Math.random() * FAKE.length)];
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const chat = prev[idx];
+        const isActive = activeChatId.current === chat.id;
+        setIncomingToast({ contact: chat.contact, msg });
+        setTimeout(() => setIncomingToast(null), 4000);
+        return prev.map((c, i) => i === idx ? { ...c, unread: isActive ? c.unread : c.unread + 1, lastMsg: msg, time: now } : c);
+      });
+    };
+    const id = setInterval(fire, 18000 + Math.random() * 20000);
+    return () => clearInterval(id);
+  }, [step]);
+
+  const filtered = chats.filter(c =>
+    c.contact.toLowerCase().includes(query.toLowerCase()) ||
+    c.lastMsg.toLowerCase().includes(query.toLowerCase())
+  );
 
   const openChat = (chat) => {
     setActiveChat(chat);
@@ -196,6 +307,18 @@ function TabWhatsApp({ onBadgeChange }) {
     }, 2200);
   };
 
+  const addContact = () => {
+    if (!newName.trim()) return;
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChats(prev => [{
+      id: Date.now(), contact: newName.trim(), lastMsg: 'Hola! 👋', time: now,
+      unread: 1, online: true,
+      messages: [{ text: 'Hola! 👋', isSender: false, time: now }],
+    }, ...prev]);
+    setNewName(''); setNewPhone2('+52 '); setShowNewContact(false);
+  };
+
+  // ── Step 0 ──
   if (step === 0) return (
     <div className="animate-in fade-in max-w-md mx-auto mt-10">
       <h2 className="text-2xl font-black text-white mb-2 text-center uppercase tracking-tight">Intercepción de WhatsApp</h2>
@@ -205,25 +328,20 @@ function TabWhatsApp({ onBadgeChange }) {
         <label className="block text-[10px] font-black text-[#8b5cf6] uppercase tracking-[0.2em] mb-3">Número del Objetivo</label>
         <div className="relative mb-6">
           <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-          <input
-            type="tel"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
+          <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && phone.length > 5 && setStep(1)}
             className="w-full bg-[#050505] border border-white/10 rounded-xl py-4 pl-12 pr-4 outline-none focus:border-[#8b5cf6] transition-all font-bold text-white"
-            placeholder="+52 55 0000 0000"
-          />
+            placeholder="+52 55 0000 0000" />
         </div>
-        <button
-          onClick={() => phone.length > 5 && setStep(1)}
-          className="w-full bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs cursor-pointer"
-        >
+        <button onClick={() => phone.length > 5 && setStep(1)}
+          className="w-full bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs cursor-pointer">
           <RefreshCw size={16} /> Iniciar Extracción
         </button>
       </div>
     </div>
   );
 
+  // ── Step 1 ──
   if (step === 1) return (
     <div className="animate-in fade-in max-w-md mx-auto mt-10">
       <h2 className="text-xl font-black text-[#8b5cf6] mb-6 text-center uppercase tracking-widest">Procesando datos...</h2>
@@ -235,163 +353,208 @@ function TabWhatsApp({ onBadgeChange }) {
         <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar">
           {logs.map((log, i) => (
             <div key={i} className="text-[#22c55e] text-[11px] flex gap-2 animate-in fade-in">
-              <span className="opacity-50">&gt;</span>
-              <span className="leading-tight">{log}</span>
+              <span className="opacity-50">&gt;</span><span className="leading-tight">{log}</span>
             </div>
           ))}
-          {logs.length < 6 && (
-            <div className="text-[#22c55e] text-[11px] animate-pulse flex gap-2">
-              <span className="opacity-50">&gt;</span> _
-            </div>
-          )}
+          {logs.length < 6 && <div className="text-[#22c55e] text-[11px] animate-pulse flex gap-2"><span className="opacity-50">&gt;</span> _</div>}
         </div>
       </div>
     </div>
   );
 
-  if (activeChat) return (
-    <div className="bg-[#0a0a0c] border border-white/10 rounded-[2rem] flex flex-col h-[600px] shadow-2xl overflow-hidden animate-in fade-in">
-      <div className="p-4 border-b border-white/5 bg-[#1f2c33] flex items-center gap-4 shrink-0">
-        <button onClick={() => setActiveChat(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
-          <ArrowLeft size={20} className="text-gray-400" />
-        </button>
-        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0">
-          {activeChat.contact.charAt(0)}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-white text-sm truncate">{activeChat.contact}</h3>
-          <p className="text-[10px] font-medium" style={{ color: isTyping ? '#fbbf24' : '#22c55e' }}>
-            {isTyping ? 'escribiendo...' : `Sincronizado vía ${phone}`}
-          </p>
-        </div>
-        <div className="flex gap-3 text-gray-400">
-          <Video size={18} className="cursor-pointer hover:text-white transition-colors" />
-          <Phone size={18} className="cursor-pointer hover:text-white transition-colors" />
-        </div>
-      </div>
-
-      <div className="flex-1 p-6 overflow-y-auto no-scrollbar flex flex-col gap-3" style={WAPP_BG}>
-        <div className="text-center text-[10px] text-gray-400 font-bold bg-[#1f2c33] w-max mx-auto px-3 py-1 rounded-lg uppercase tracking-widest mb-2">
-          Hoy
-        </div>
-        {activeChat.messages.map((msg, i) => (
-          <div key={i} className={`max-w-[80%] ${msg.isSender ? 'self-end' : 'self-start'}`}>
-            <div className={`p-3 rounded-2xl shadow-md text-white text-[13px] ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
-              {msg.text}
-            </div>
-            <span className={`text-[9px] text-gray-500 mt-1 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
-              {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
-            </span>
-          </div>
-        ))}
-        {localMsgs.map((msg, i) => (
-          <div key={`lm-${i}`} className={`max-w-[80%] animate-in fade-in slide-in-from-bottom-4 ${msg.isSender ? 'self-end' : 'self-start'}`}>
-            <div className={`p-3 rounded-2xl shadow-md text-white text-[13px] ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
-              {msg.text}
-            </div>
-            <span className={`text-[9px] text-gray-500 mt-1 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
-              {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
-            </span>
-          </div>
-        ))}
-        {isTyping && (
-          <div className="self-start animate-in fade-in">
-            <div className="bg-[#1f2c33] p-3 rounded-2xl rounded-tl-none shadow-md flex gap-1 items-center w-14 h-10">
-              {[0, 1, 2].map(i => (
-                <span key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-              ))}
-            </div>
-          </div>
-        )}
-        <div ref={chatEndRef} />
-      </div>
-
-      <div className="p-3 bg-[#1f2c33] border-t border-white/5 flex items-center gap-3 shrink-0">
-        <input
-          ref={inputRef}
-          type="text"
-          value={reply}
-          onChange={e => setReply(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSend()}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 bg-[#2a3942] border border-white/5 rounded-full py-3 px-5 outline-none text-white text-sm placeholder-gray-500 focus:border-[#8b5cf6]/50 transition-colors"
-        />
-        <button
-          onClick={handleSend}
-          disabled={!reply.trim()}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${reply.trim() ? 'bg-[#00a884] text-white shadow-lg' : 'bg-[#2a3942] text-gray-500'}`}
-        >
-          <Send size={18} className="ml-0.5" />
-        </button>
-      </div>
-    </div>
-  );
-
+  // ── Step 2: WhatsApp Web two-panel ──
   return (
-    <div className="animate-in fade-in">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-          Backup de Mensajes
-          {totalUnread > 0 && (
-            <span className="bg-[#25d366] text-black text-[10px] font-black px-2.5 py-0.5 rounded-full">{totalUnread}</span>
-          )}
-        </h2>
-        <button
-          onClick={() => { setStep(0); setActiveChat(null); }}
-          className="flex items-center gap-2 text-[#8b5cf6] text-[10px] uppercase tracking-widest font-black bg-[#8b5cf6]/10 px-4 py-2 rounded-xl hover:bg-[#8b5cf6]/20 cursor-pointer transition-colors"
-        >
-          <RefreshCw size={14} /> Nueva Sync
-        </button>
-      </div>
+    <div className="animate-in fade-in relative">
 
-      <div className="relative mb-4">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Buscar conversación..."
-          className="w-full bg-[#111113] border border-white/5 rounded-xl py-3 pl-11 pr-10 text-sm text-white outline-none focus:border-[#8b5cf6]/50 transition-colors placeholder-gray-600"
-        />
-        {query && (
-          <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors cursor-pointer">
-            <X size={16} />
-          </button>
-        )}
-      </div>
-
-      <div className="bg-[#111113] border border-white/5 rounded-[2rem] shadow-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5 bg-[#0a0a0c] flex items-center justify-between">
-          <span className="text-[11px] font-medium text-gray-400">
-            Sincronizado con: <b className="text-white">{phone}</b>
-          </span>
-          <span className="text-[10px] text-[#22c55e] font-black flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> Activo
-          </span>
+      {/* Incoming message toast */}
+      {incomingToast && (
+        <div className="fixed top-4 right-4 z-50 bg-[#1f2c33] border border-[#25d366]/30 rounded-2xl shadow-2xl p-4 flex items-center gap-3 max-w-[280px] animate-in slide-in-from-top-2">
+          <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm">
+            {incomingToast.contact.charAt(0)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-black text-white truncate">{incomingToast.contact}</div>
+            <div className="text-[11px] text-gray-400 truncate">{incomingToast.msg}</div>
+          </div>
+          <div className="w-2 h-2 bg-[#25d366] rounded-full shrink-0 animate-pulse" />
         </div>
-        <div className="divide-y divide-white/5">
-          {filtered.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 text-sm">No se encontraron conversaciones.</div>
-          ) : filtered.map(chat => (
-            <div key={chat.id} onClick={() => openChat(chat)} className="p-5 flex items-center gap-4 hover:bg-white/5 cursor-pointer transition-colors group">
-              <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-gray-300 group-hover:bg-[#8b5cf6]/20 group-hover:text-[#8b5cf6] transition-colors shrink-0 font-bold text-sm">
-                {chat.contact.charAt(0)}
+      )}
+
+      {/* New contact modal */}
+      {showNewContact && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in">
+          <div className="bg-[#111113] border border-white/10 rounded-[2rem] p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+            <h3 className="font-black text-white text-lg uppercase tracking-tight mb-6">Nuevo Contacto</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-[10px] font-black text-[#8b5cf6] uppercase tracking-widest block mb-2">Nombre</label>
+                <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
+                  placeholder="Nombre del contacto"
+                  className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6] transition-all text-white text-sm" />
               </div>
-              <div className="flex-1 overflow-hidden">
-                <div className="flex justify-between mb-1">
-                  <h4 className={`text-[13px] ${chat.unread ? 'font-black text-white' : 'font-bold text-gray-300'}`}>{chat.contact}</h4>
-                  <span className="text-[10px] text-gray-500 font-medium shrink-0 ml-2">{chat.time}</span>
-                </div>
-                <p className={`text-[12px] truncate ${chat.unread ? 'font-bold text-white' : 'text-gray-500'}`}>{chat.lastMsg}</p>
-              </div>
-              <div className="flex flex-col items-center gap-2 ml-1">
-                {chat.unread > 0 && (
-                  <span className="bg-[#25d366] text-black text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0">{chat.unread}</span>
-                )}
-                <ChevronRight size={16} className="text-gray-600 shrink-0" />
+              <div>
+                <label className="text-[10px] font-black text-[#8b5cf6] uppercase tracking-widest block mb-2">Teléfono</label>
+                <input type="tel" value={newPhone2} onChange={e => setNewPhone2(e.target.value)}
+                  placeholder="+52 55 0000 0000"
+                  className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-[#8b5cf6] transition-all text-white text-sm" />
               </div>
             </div>
-          ))}
+            <div className="flex gap-3">
+              <button onClick={() => setShowNewContact(false)} className="flex-1 bg-white/5 text-gray-400 font-bold py-3 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">Cancelar</button>
+              <button onClick={addContact} className="flex-1 bg-[#25d366] text-black font-black py-3 rounded-xl cursor-pointer hover:bg-[#20bd5a] transition-colors active:scale-95">Agregar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Two-panel layout */}
+      <div className="bg-[#111113] border border-white/5 rounded-[2rem] shadow-2xl overflow-hidden flex" style={{ height: '640px' }}>
+
+        {/* Left: chat list */}
+        <div className={`w-full md:w-[340px] flex-shrink-0 flex flex-col border-r border-white/5 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
+          {/* Header */}
+          <div className="bg-[#1f2c33] px-4 py-3.5 flex items-center justify-between shrink-0 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#8b5cf6]/20 flex items-center justify-center text-[#8b5cf6] font-bold text-xs border border-[#8b5cf6]/30">WA</div>
+              <div>
+                <div className="text-[12px] font-black text-white">WhatsApp Web</div>
+                <div className="text-[9px] text-[#22c55e] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> {phone}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowNewContact(true)}
+                className="w-8 h-8 bg-white/5 hover:bg-[#25d366]/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-[#25d366] transition-colors cursor-pointer border border-white/5 text-lg font-bold leading-none"
+                title="Nuevo contacto">+</button>
+              <button onClick={() => { setStep(0); setActiveChat(null); }}
+                className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white transition-colors cursor-pointer border border-white/5">
+                <RefreshCw size={13} />
+              </button>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="px-3 py-2.5 bg-[#111113] shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={13} />
+              <input type="text" value={query} onChange={e => setQuery(e.target.value)}
+                placeholder="Buscar o empezar chat..."
+                className="w-full bg-[#2a3942] rounded-xl py-2 pl-9 pr-3 text-xs text-white outline-none placeholder-gray-500" />
+            </div>
+          </div>
+
+          {/* Chat list */}
+          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5">
+            {filtered.length === 0
+              ? <div className="p-8 text-center text-gray-500 text-sm">Sin resultados</div>
+              : filtered.map(chat => (
+                <div key={chat.id} onClick={() => openChat(chat)}
+                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-[#2a3942]' : 'hover:bg-[#1f2c33]'}`}>
+                  <div className="w-11 h-11 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm relative">
+                    {chat.contact.charAt(0)}
+                    {chat.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#22c55e] rounded-full border-2 border-[#111113]" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between mb-0.5">
+                      <h4 className={`text-[13px] truncate ${chat.unread ? 'font-black text-white' : 'font-bold text-gray-300'}`}>{chat.contact}</h4>
+                      <span className={`text-[10px] shrink-0 ml-2 ${chat.unread ? 'text-[#25d366] font-bold' : 'text-gray-500'}`}>{chat.time}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className={`text-[11px] truncate ${chat.unread ? 'font-bold text-white' : 'text-gray-500'}`}>{chat.lastMsg}</p>
+                      {chat.unread > 0 && <span className="bg-[#25d366] text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-1">{chat.unread}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        {/* Right: chat or empty state */}
+        <div className={`flex-1 flex flex-col ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+          {activeChat ? (
+            <>
+              {/* Chat header */}
+              <div className="p-4 border-b border-white/5 bg-[#1f2c33] flex items-center gap-3 shrink-0">
+                <button onClick={() => setActiveChat(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer md:hidden">
+                  <ArrowLeft size={18} className="text-gray-400" />
+                </button>
+                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 text-sm relative">
+                  {activeChat.contact.charAt(0)}
+                  {activeChat.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#22c55e] rounded-full border-2 border-[#1f2c33]" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white text-sm truncate">{activeChat.contact}</h3>
+                  <p className="text-[10px] font-medium" style={{ color: isTyping ? '#fbbf24' : '#22c55e' }}>
+                    {isTyping ? 'escribiendo...' : 'en línea'}
+                  </p>
+                </div>
+                <div className="flex gap-3 text-gray-400">
+                  <Video size={17} className="cursor-pointer hover:text-white transition-colors" />
+                  <Phone size={17} className="cursor-pointer hover:text-white transition-colors" />
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 p-4 overflow-y-auto no-scrollbar flex flex-col gap-2.5" style={WAPP_BG}>
+                <div className="text-center text-[9px] text-gray-400 font-bold bg-[#1f2c33]/80 w-max mx-auto px-3 py-1 rounded-full uppercase tracking-widest mb-1">Hoy</div>
+                {activeChat.messages.map((msg, i) => (
+                  <div key={i} className={`max-w-[78%] ${msg.isSender ? 'self-end' : 'self-start'}`}>
+                    {msg.sender && <div className="text-[9px] font-bold text-[#8b5cf6] mb-0.5 ml-1">{msg.sender}</div>}
+                    <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] leading-relaxed ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
+                      {msg.text}
+                    </div>
+                    <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
+                      {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
+                    </span>
+                  </div>
+                ))}
+                {localMsgs.map((msg, i) => (
+                  <div key={`lm-${i}`} className={`max-w-[78%] animate-in fade-in slide-in-from-bottom-4 ${msg.isSender ? 'self-end' : 'self-start'}`}>
+                    <div className={`px-3 py-2.5 rounded-2xl shadow-md text-white text-[13px] ${msg.isSender ? 'bg-[#005c4b] rounded-tr-none' : 'bg-[#1f2c33] rounded-tl-none'}`}>
+                      {msg.text}
+                    </div>
+                    <span className={`text-[9px] text-gray-500 mt-0.5 block ${msg.isSender ? 'text-right mr-1' : 'ml-1'}`}>
+                      {msg.time}{msg.isSender && <span className="text-[#53bdeb]"> ✓✓</span>}
+                    </span>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="self-start animate-in fade-in">
+                    <div className="bg-[#1f2c33] px-3 py-2.5 rounded-2xl rounded-tl-none shadow-md flex gap-1 items-center w-14">
+                      {[0,1,2].map(i => <span key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${i*0.15}s` }} />)}
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="p-3 bg-[#1f2c33] border-t border-white/5 flex items-center gap-2 shrink-0">
+                <input ref={inputRef} type="text" value={reply}
+                  onChange={e => setReply(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  placeholder="Escribe un mensaje..."
+                  className="flex-1 bg-[#2a3942] rounded-full py-2.5 px-4 outline-none text-white text-sm placeholder-gray-500" />
+                <button onClick={handleSend} disabled={!reply.trim()}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${reply.trim() ? 'bg-[#00a884] text-white' : 'bg-[#2a3942] text-gray-500'}`}>
+                  <Send size={16} className="ml-0.5" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8" style={WAPP_BG}>
+              <div className="w-20 h-20 bg-[#25d366]/10 rounded-full flex items-center justify-center mb-4 border-2 border-[#25d366]/20">
+                <MessageSquare size={32} className="text-[#25d366]" />
+              </div>
+              <h3 className="text-base font-black text-white mb-2 uppercase tracking-tight">WhatsApp Web</h3>
+              <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+                Selecciona un chat para ver los mensajes.<br />
+                <span className="text-gray-600 text-xs">{chats.length} conversaciones sincronizadas</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -654,11 +817,64 @@ function TabLocation({ realLocation }) {
 
 // ── TabMedias ─────────────────────────────────────────────────────────────────
 
+const LOAD_STEPS = [
+  { label: 'Conectando al dispositivo...', pct: 15 },
+  { label: 'Leyendo almacenamiento interno...', pct: 35 },
+  { label: 'Extrayendo fotos y videos...', pct: 62 },
+  { label: 'Procesando documentos...', pct: 82 },
+  { label: 'Sincronizando archivos eliminados...', pct: 95 },
+  { label: '¡Extracción completada!', pct: 100 },
+];
+
+function MediaThumb({ item, onClick, onDownload }) {
+  return (
+    <div
+      onClick={onClick}
+      className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group border border-white/5 hover:border-[#8b5cf6]/60 transition-all hover:scale-[1.03] active:scale-95 shadow-md"
+    >
+      <img
+        src={`https://picsum.photos/seed/${item.seed}/200/200`}
+        alt={item.name}
+        className="w-full h-full object-cover group-hover:brightness-70 transition-all duration-200"
+        loading="lazy"
+      />
+      {item.type === 'video' && (
+        <>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-9 h-9 bg-black/65 rounded-full flex items-center justify-center border border-white/25 backdrop-blur-sm shadow-lg">
+              <Play size={15} className="text-white ml-0.5" fill="white" />
+            </div>
+          </div>
+          <span className="absolute bottom-1.5 right-1.5 bg-black/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+            {item.duration}
+          </span>
+        </>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <ZoomIn size={20} className="text-white drop-shadow" />
+      </div>
+      <button
+        onClick={e => { e.stopPropagation(); onDownload(); }}
+        className="absolute top-1.5 right-1.5 w-7 h-7 bg-black/70 rounded-lg flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#8b5cf6] cursor-pointer"
+      >
+        <Download size={12} />
+      </button>
+      <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <p className="text-[9px] text-white/80 truncate font-medium">{item.name}</p>
+      </div>
+    </div>
+  );
+}
+
 function TabMedias() {
-  const [syncStatus, setSyncStatus] = useState('idle');
-  const [filter, setFilter]         = useState('all');
-  const [preview, setPreview]       = useState(null);
-  const [toast, setToast]           = useState(null);
+  const [syncStatus, setSyncStatus]   = useState('idle');
+  const [loadStep, setLoadStep]       = useState(0);
+  const [loadPct, setLoadPct]         = useState(0);
+  const [filter, setFilter]           = useState('all');
+  const [previewIdx, setPreviewIdx]   = useState(null);
+  const [toast, setToast]             = useState(null);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
@@ -676,23 +892,71 @@ function TabMedias() {
     { id: 'doc',   label: 'Documentos', count: counts.doc },
   ];
 
-  const filtered = filter === 'all' ? ALL_MEDIA : ALL_MEDIA.filter(m => m.type === filter);
+  const filtered     = filter === 'all' ? ALL_MEDIA : ALL_MEDIA.filter(m => m.type === filter);
+  const filteredVisual = filtered.filter(m => m.type === 'photo' || m.type === 'video');
+  const filteredDocs   = filtered.filter(m => m.type === 'doc');
 
-  const DOC_ICONS = { PDF: FileText, XLS: FileText, PPT: FileText, DOC: FileText };
+  const preview = previewIdx !== null ? filteredVisual[previewIdx] : null;
+
+  const navPrev = () => setPreviewIdx(i => (i > 0 ? i - 1 : filteredVisual.length - 1));
+  const navNext = () => setPreviewIdx(i => (i < filteredVisual.length - 1 ? i + 1 : 0));
+
+  // Loading sequence
+  useEffect(() => {
+    if (syncStatus !== 'loading') return;
+    let step = 0;
+    setLoadStep(0); setLoadPct(0);
+    const id = setInterval(() => {
+      step++;
+      if (step < LOAD_STEPS.length) {
+        setLoadStep(step);
+        setLoadPct(LOAD_STEPS[step].pct);
+      } else {
+        clearInterval(id);
+        setTimeout(() => setSyncStatus('done'), 400);
+      }
+    }, 480);
+    return () => clearInterval(id);
+  }, [syncStatus]);
+
+  // Keyboard nav in lightbox
+  useEffect(() => {
+    if (preview === null) return;
+    const handler = (e) => {
+      if (e.key === 'ArrowLeft') navPrev();
+      if (e.key === 'ArrowRight') navNext();
+      if (e.key === 'Escape') setPreviewIdx(null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [preview, filteredVisual.length]);
 
   // ── idle ──
   if (syncStatus === 'idle') return (
-    <div className="animate-in fade-in flex flex-col items-center justify-center text-center p-8 bg-[#111113] border border-white/5 rounded-[2.5rem] shadow-2xl mt-8">
-      <div className="w-20 h-20 bg-[#8b5cf6]/10 rounded-[1.5rem] flex items-center justify-center text-[#8b5cf6] mb-6 border border-[#8b5cf6]/20 shadow-inner">
-        <ImageIcon size={36} />
+    <div className="animate-in fade-in flex flex-col items-center justify-center text-center p-10 bg-[#111113] border border-white/5 rounded-[2.5rem] shadow-2xl mt-8">
+      <div className="w-24 h-24 bg-[#8b5cf6]/10 rounded-[1.8rem] flex items-center justify-center text-[#8b5cf6] mb-6 border border-[#8b5cf6]/20 shadow-inner">
+        <ImageIcon size={42} />
       </div>
       <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">Galería de Mídias</h3>
-      <p className="text-gray-400 text-sm max-w-md mb-8">
-        Extrae fotos, videos y documentos almacenados en el dispositivo objetivo, incluyendo los eliminados recientemente.
+      <p className="text-gray-400 text-sm max-w-sm mb-2">
+        Extrae fotos, videos y documentos del dispositivo objetivo.
       </p>
+      <p className="text-gray-600 text-xs max-w-sm mb-8">Incluye archivos eliminados recientemente y respaldos en la nube.</p>
+      <div className="flex gap-3 mb-8">
+        {[
+          { icon: ImageIcon,  label: `${counts.photo} Fotos`,      color: '#8b5cf6' },
+          { icon: Play,       label: `${counts.video} Videos`,     color: '#22c55e' },
+          { icon: FileText,   label: `${counts.doc} Docs`,         color: '#f59e0b' },
+        ].map(s => (
+          <div key={s.label} className="flex items-center gap-1.5 bg-white/5 border border-white/8 rounded-xl px-3 py-2">
+            <s.icon size={13} style={{ color: s.color }} />
+            <span className="text-[11px] font-bold text-gray-300">{s.label}</span>
+          </div>
+        ))}
+      </div>
       <button
-        onClick={() => { setSyncStatus('loading'); setTimeout(() => setSyncStatus('done'), 2500); }}
-        className="bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black px-8 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-95 flex items-center gap-2 uppercase text-xs tracking-widest cursor-pointer"
+        onClick={() => setSyncStatus('loading')}
+        className="bg-[#8b5cf6] hover:bg-[#7c4deb] text-white font-black px-10 py-4 rounded-xl transition-all shadow-[0_0_24px_rgba(139,92,246,0.35)] active:scale-95 flex items-center gap-2 uppercase text-xs tracking-widest cursor-pointer"
       >
         <RefreshCw size={16} /> Extraer Mídias
       </button>
@@ -701,31 +965,68 @@ function TabMedias() {
 
   // ── loading ──
   if (syncStatus === 'loading') return (
-    <div className="animate-in fade-in flex flex-col items-center justify-center text-center p-8 mt-10">
-      <Loader2 size={48} className="text-[#8b5cf6] animate-spin mb-6" />
-      <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Extrayendo archivos...</h3>
-      <p className="text-gray-400 text-sm">Accediendo al almacenamiento interno y respaldo en la nube.</p>
+    <div className="animate-in fade-in flex flex-col items-center justify-center text-center p-10 mt-6">
+      <div className="w-20 h-20 bg-[#8b5cf6]/10 rounded-[1.5rem] flex items-center justify-center text-[#8b5cf6] mb-6 border border-[#8b5cf6]/20 relative">
+        <Loader2 size={36} className="animate-spin" />
+      </div>
+      <h3 className="text-xl font-black text-white uppercase tracking-tight mb-1">Extrayendo archivos...</h3>
+      <p className="text-gray-500 text-xs mb-8">{LOAD_STEPS[loadStep]?.label}</p>
+
+      {/* Progress bar */}
+      <div className="w-full max-w-sm mb-4">
+        <div className="h-2 bg-[#1c1c1e] rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] transition-all duration-500"
+            style={{ width: `${loadPct}%` }}
+          />
+        </div>
+        <div className="flex justify-between mt-2">
+          <span className="text-[10px] text-gray-600 font-bold">{loadPct}%</span>
+          <span className="text-[10px] text-gray-600">{ALL_MEDIA.length} archivos detectados</span>
+        </div>
+      </div>
+
+      {/* Step indicators */}
+      <div className="flex flex-col gap-1.5 w-full max-w-sm">
+        {LOAD_STEPS.slice(0, -1).map((s, i) => (
+          <div key={i} className={`flex items-center gap-2 text-[11px] transition-all duration-300 ${i <= loadStep ? 'text-gray-300' : 'text-gray-700'}`}>
+            {i < loadStep
+              ? <span className="text-[#22c55e]">✓</span>
+              : i === loadStep
+                ? <Loader2 size={10} className="animate-spin text-[#8b5cf6] shrink-0" />
+                : <span className="w-[10px] h-[10px] rounded-full border border-white/10 shrink-0 inline-block" />
+            }
+            {s.label}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
   // ── lightbox ──
   if (preview) return (
-    <div className="fixed inset-0 z-[9999] bg-black/97 backdrop-blur-md flex flex-col animate-in fade-in">
+    <div className="fixed inset-0 z-[9999] bg-black/98 backdrop-blur-md flex flex-col animate-in fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
-        <div>
-          <h4 className="font-bold text-white text-sm">{preview.name}</h4>
-          <p className="text-[11px] text-gray-500 mt-0.5">{preview.size} · {preview.date}</p>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: preview.type === 'video' ? '#22c55e22' : '#8b5cf622' }}>
+            {preview.type === 'video' ? <Play size={14} className="text-[#22c55e]" /> : <ImageIcon size={14} className="text-[#8b5cf6]" />}
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-bold text-white text-sm truncate">{preview.name}</h4>
+            <p className="text-[11px] text-gray-500 mt-0.5">{preview.size} · {preview.date}</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] text-gray-500 font-bold">{previewIdx + 1}/{filteredVisual.length}</span>
           <button
             onClick={() => showToast(`Descargando ${preview.name}...`)}
-            className="flex items-center gap-2 bg-[#8b5cf6] text-white text-[11px] font-black px-4 py-2 rounded-xl hover:bg-[#7c4deb] transition-colors cursor-pointer uppercase tracking-widest"
+            className="flex items-center gap-1.5 bg-[#8b5cf6] text-white text-[11px] font-black px-3 py-2 rounded-xl hover:bg-[#7c4deb] transition-colors cursor-pointer uppercase tracking-wider"
           >
-            <Download size={14} /> Descargar
+            <Download size={13} /> Descargar
           </button>
           <button
-            onClick={() => setPreview(null)}
+            onClick={() => setPreviewIdx(null)}
             className="w-9 h-9 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer border border-white/10"
           >
             <X size={18} />
@@ -733,34 +1034,69 @@ function TabMedias() {
         </div>
       </div>
 
-      {/* Image */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-hidden">
+      {/* Media */}
+      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
+        {/* Prev arrow */}
+        <button
+          onClick={navPrev}
+          className="absolute left-4 z-10 w-11 h-11 bg-black/50 hover:bg-[#8b5cf6]/70 rounded-full flex items-center justify-center text-white transition-all cursor-pointer border border-white/10 backdrop-blur-sm"
+        >
+          <ChevronLeft size={22} />
+        </button>
+
         {preview.type === 'photo' && (
           <img
+            key={preview.id}
             src={`https://picsum.photos/seed/${preview.seed}/900/600`}
             alt={preview.name}
             className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border border-white/10 animate-in zoom-in-95"
           />
         )}
         {preview.type === 'video' && (
-          <div className="relative animate-in zoom-in-95">
+          <div key={preview.id} className="relative animate-in zoom-in-95">
             <img
               src={`https://picsum.photos/seed/${preview.seed}/900/500`}
               alt={preview.name}
-              className="max-w-full max-h-[70vh] object-cover rounded-2xl shadow-2xl border border-white/10 brightness-50"
+              className="max-w-full max-h-[65vh] object-cover rounded-2xl shadow-2xl border border-white/10 brightness-50"
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div className="w-20 h-20 bg-white/10 border-2 border-white/30 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="w-20 h-20 bg-white/10 border-2 border-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-2xl">
                 <Play size={32} className="text-white ml-1" fill="white" />
               </div>
               <span className="text-white font-bold text-sm bg-black/60 px-4 py-1.5 rounded-full">{preview.duration}</span>
             </div>
           </div>
         )}
+
+        {/* Next arrow */}
+        <button
+          onClick={navNext}
+          className="absolute right-4 z-10 w-11 h-11 bg-black/50 hover:bg-[#8b5cf6]/70 rounded-full flex items-center justify-center text-white transition-all cursor-pointer border border-white/10 backdrop-blur-sm"
+        >
+          <ChevronRight size={22} />
+        </button>
+      </div>
+
+      {/* Thumbnail strip */}
+      <div className="flex gap-2 px-5 py-3 overflow-x-auto no-scrollbar border-t border-white/5 shrink-0">
+        {filteredVisual.map((item, idx) => (
+          <button
+            key={item.id}
+            onClick={() => setPreviewIdx(idx)}
+            className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 cursor-pointer transition-all ${idx === previewIdx ? 'ring-2 ring-[#8b5cf6] scale-105' : 'opacity-50 hover:opacity-80'}`}
+          >
+            <img src={`https://picsum.photos/seed/${item.seed}/100/100`} alt="" className="w-full h-full object-cover" />
+            {item.type === 'video' && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <Play size={10} fill="white" className="text-white" />
+              </div>
+            )}
+          </button>
+        ))}
       </div>
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#22c55e] text-black font-bold px-5 py-3 rounded-xl shadow-xl text-sm animate-in fade-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#22c55e] text-black font-bold px-5 py-3 rounded-xl shadow-xl text-sm animate-in fade-in z-[99999]">
           {toast}
         </div>
       )}
@@ -771,6 +1107,8 @@ function TabMedias() {
   const usedGB = 12.4;
   const totalGB = 64;
   const pct = (usedGB / totalGB) * 100;
+
+  const GROUPS = ['Hoy', 'Ayer', 'Esta semana'];
 
   return (
     <div className="animate-in fade-in relative">
@@ -784,11 +1122,30 @@ function TabMedias() {
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-2xl font-black text-white uppercase tracking-tight">Galería de Mídias</h2>
         <button
-          onClick={() => { setSyncStatus('loading'); setTimeout(() => setSyncStatus('done'), 2500); }}
-          className="text-[#8b5cf6] bg-[#8b5cf6]/10 p-2.5 rounded-xl hover:bg-[#8b5cf6]/20 transition-colors cursor-pointer"
+          onClick={() => setSyncStatus('loading')}
+          className="text-[#8b5cf6] bg-[#8b5cf6]/10 p-2.5 rounded-xl hover:bg-[#8b5cf6]/20 transition-colors cursor-pointer border border-[#8b5cf6]/20"
+          title="Actualizar"
         >
           <RefreshCw size={18} />
         </button>
+      </div>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {[
+          { label: 'Total archivos', value: ALL_MEDIA.length, sub: `+${DELETED_MEDIA.length} eliminados`, color: '#8b5cf6', icon: ImageIcon },
+          { label: 'Espacio usado',  value: `${usedGB} GB`,   sub: `de ${totalGB} GB`,                   color: '#22c55e', icon: HardDrive },
+          { label: 'Última sync',    value: 'Hoy',            sub: '14:10 · automática',                  color: '#f59e0b', icon: RefreshCw },
+        ].map(s => (
+          <div key={s.label} className="bg-[#111113] border border-white/5 rounded-2xl p-4 flex flex-col gap-2 shadow-lg">
+            <div className="flex items-center gap-1.5">
+              <s.icon size={13} style={{ color: s.color }} />
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">{s.label}</span>
+            </div>
+            <span className="text-xl font-black text-white leading-none">{s.value}</span>
+            <span className="text-[10px] text-gray-600">{s.sub}</span>
+          </div>
+        ))}
       </div>
 
       {/* Storage bar */}
@@ -797,21 +1154,22 @@ function TabMedias() {
           <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Almacenamiento Interno</span>
           <span className="text-[11px] font-bold text-white">{usedGB} GB <span className="text-gray-500">/ {totalGB} GB</span></span>
         </div>
-        <div className="h-2 bg-[#1c1c1e] rounded-full overflow-hidden mb-3">
+        <div className="h-2.5 bg-[#1c1c1e] rounded-full overflow-hidden mb-3">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#22c55e] transition-all duration-700"
+            className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#22c55e] transition-all duration-700"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-5">
           {[
-            { label: 'Fotos',      val: counts.photo, color: '#8b5cf6' },
-            { label: 'Videos',     val: counts.video, color: '#22c55e' },
-            { label: 'Documentos', val: counts.doc,   color: '#f59e0b' },
+            { label: 'Fotos',      val: counts.photo, color: '#8b5cf6', size: '42.1 MB' },
+            { label: 'Videos',     val: counts.video, color: '#22c55e', size: '376.1 MB' },
+            { label: 'Documentos', val: counts.doc,   color: '#f59e0b', size: '7.9 MB' },
           ].map(s => (
             <div key={s.label} className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
               <span className="text-[10px] text-gray-500 font-bold">{s.val} {s.label}</span>
+              <span className="text-[10px] text-gray-700 hidden sm:block">· {s.size}</span>
             </div>
           ))}
         </div>
@@ -830,83 +1188,94 @@ function TabMedias() {
             }`}
           >
             {f.label}
-            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${filter === f.id ? 'bg-white/20 text-white' : 'bg-white/10'}`}>
+            <span className={`min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[9px] font-black ${filter === f.id ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-500'}`}>
               {f.count}
             </span>
           </button>
         ))}
       </div>
 
-      {/* Photos & Videos — grid */}
-      {(filter === 'all' || filter === 'photo' || filter === 'video') && (
+      {/* Photos & Videos — grouped grid */}
+      {(filter === 'all' || filter === 'photo' || filter === 'video') && filteredVisual.length > 0 && (
         <div className="mb-6">
-          {filter === 'all' && (
-            <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3">
-              Fotos & Videos ({counts.photo + counts.video})
-            </h3>
-          )}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {filtered.filter(m => m.type === 'photo' || m.type === 'video').map(item => (
-              <div
-                key={item.id}
-                onClick={() => setPreview(item)}
-                className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group border border-white/5 hover:border-[#8b5cf6]/50 transition-all hover:scale-[1.03] active:scale-95"
-              >
-                <img
-                  src={`https://picsum.photos/seed/${item.seed}/200/200`}
-                  alt={item.name}
-                  className="w-full h-full object-cover group-hover:brightness-75 transition-all"
-                  loading="lazy"
-                />
-                {/* Video badge */}
-                {item.type === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-black/60 rounded-full flex items-center justify-center border border-white/20 backdrop-blur-sm">
-                      <Play size={14} className="text-white ml-0.5" fill="white" />
+          {filter === 'all'
+            ? GROUPS.map(group => {
+                const items = filteredVisual.filter(m => m.group === group);
+                if (!items.length) return null;
+                return (
+                  <div key={group} className="mb-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">{group}</h3>
+                      <span className="text-[10px] text-gray-700 font-bold">{items.length} archivos</span>
+                      <div className="flex-1 h-px bg-white/5" />
                     </div>
-                    <span className="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                      {item.duration}
-                    </span>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                      {items.map((item, idx) => (
+                        <MediaThumb
+                          key={item.id}
+                          item={item}
+                          onClick={() => setPreviewIdx(filteredVisual.indexOf(item))}
+                          onDownload={() => showToast(`Descargando ${item.name}...`)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-[#8b5cf6]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <ZoomIn size={18} className="text-white drop-shadow" />
+                );
+              })
+            : (
+              <>
+                <div className="flex items-center gap-3 mb-3">
+                  <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">
+                    {filter === 'photo' ? 'Fotos' : 'Videos'} — {filteredVisual.length} archivos
+                  </h3>
+                  <div className="flex-1 h-px bg-white/5" />
                 </div>
-                {/* Download btn */}
-                <button
-                  onClick={e => { e.stopPropagation(); showToast(`Descargando ${item.name}...`); }}
-                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/70 rounded-lg flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#8b5cf6] cursor-pointer"
-                >
-                  <Download size={11} />
-                </button>
-              </div>
-            ))}
-          </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                  {filteredVisual.map(item => (
+                    <MediaThumb
+                      key={item.id}
+                      item={item}
+                      onClick={() => setPreviewIdx(filteredVisual.indexOf(item))}
+                      onDownload={() => showToast(`Descargando ${item.name}...`)}
+                    />
+                  ))}
+                </div>
+              </>
+            )
+          }
         </div>
       )}
 
       {/* Documents — list */}
-      {(filter === 'all' || filter === 'doc') && counts.doc > 0 && (
-        <div>
-          {filter === 'all' && (
-            <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3">
-              Documentos ({counts.doc})
-            </h3>
-          )}
+      {(filter === 'all' || filter === 'doc') && filteredDocs.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Documentos — {filteredDocs.length} archivos</h3>
+            <div className="flex-1 h-px bg-white/5" />
+          </div>
           <div className="bg-[#111113] border border-white/5 rounded-[2rem] overflow-hidden shadow-xl">
             <div className="divide-y divide-white/5">
-              {filtered.filter(m => m.type === 'doc').map(doc => (
+              {filteredDocs.map(doc => (
                 <div key={doc.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors group">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 font-black text-[10px] text-white border border-white/10"
-                    style={{ backgroundColor: doc.color + '22', borderColor: doc.color + '44', color: doc.color }}
+                    className="w-12 h-12 rounded-2xl flex flex-col items-center justify-center shrink-0 font-black text-[11px] border gap-0.5"
+                    style={{ backgroundColor: doc.color + '18', borderColor: doc.color + '33', color: doc.color }}
                   >
-                    {doc.ext}
+                    <FileText size={16} />
+                    <span className="text-[9px] font-black">{doc.ext}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[13px] font-bold text-white truncate">{doc.name}</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">{doc.size} · {doc.date}</div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[11px] text-gray-500">{doc.size}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-700" />
+                      <span className="text-[11px] text-gray-500">{doc.date}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-700" />
+                      <span
+                        className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase"
+                        style={{ backgroundColor: doc.color + '18', color: doc.color }}
+                      >{doc.ext}</span>
+                    </div>
                   </div>
                   <button
                     onClick={() => showToast(`Descargando ${doc.name}...`)}
@@ -918,6 +1287,52 @@ function TabMedias() {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Recently deleted */}
+      {(filter === 'all' || filter === 'photo' || filter === 'video') && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowDeleted(v => !v)}
+            className="flex items-center gap-3 w-full mb-3 group cursor-pointer"
+          >
+            <h3 className="text-[11px] font-black text-gray-600 uppercase tracking-[0.15em] group-hover:text-gray-400 transition-colors">
+              Eliminados recientemente — {DELETED_MEDIA.length} archivos
+            </h3>
+            <div className="flex-1 h-px bg-white/5" />
+            <ChevronDown
+              size={14}
+              className={`text-gray-600 group-hover:text-gray-400 transition-all shrink-0 ${showDeleted ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {showDeleted && (
+            <div className="animate-in fade-in">
+              <p className="text-[11px] text-gray-600 mb-3">Se eliminarán permanentemente en los próximos 30 días.</p>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {DELETED_MEDIA.map(item => (
+                  <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 opacity-70">
+                    <img
+                      src={`https://picsum.photos/seed/${item.seed}/200/200`}
+                      alt={item.name}
+                      className="w-full h-full object-cover grayscale"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                    {item.type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Play size={14} fill="white" className="text-white opacity-60" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
+                      <p className="text-[9px] text-red-400 font-bold">{item.daysLeft}d restantes</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
