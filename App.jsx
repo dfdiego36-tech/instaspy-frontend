@@ -1651,4 +1651,8 @@ export default function App() {
       )}
     </div>
   );
+
+  if (step === 0) return renderQR();
+  if (step === 1) return renderConnecting();
+  return renderDashboard();
 }
